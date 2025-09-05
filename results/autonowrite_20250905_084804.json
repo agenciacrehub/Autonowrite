@@ -1,0 +1,24 @@
+{
+  "topic": "Buracos de Minhoca",
+  "final_content": "\n## Plano Estruturado\n\n### 1. Introdução\n- Contextualização do tema\n- Relevância e importância atual\n- Objetivos do artigo\n\n### 2. Fundamentação Teórica  \n- Conceitos fundamentais\n- Estado da arte\n- Revisão da literatura\n\n### 3. Análise Crítica\n- Vantagens e limitações\n- Casos de uso práticos\n- Comparações com alternativas\n\n### 4. Discussão e Implicações\n- Impactos na área\n- Desafios identificados\n- Oportunidades futuras\n\n### 5. Conclusão\n- Síntese dos pontos principais\n- Contribuições do trabalho\n- Sugestões para pesquisas futuras\n\n**Palavras-chave**: sistema multiagente, inteligência artificial, automação\n",
+  "plan": "\n## Plano Estruturado\n\n### 1. Introdução\n- Contextualização do tema\n- Relevância e importância atual\n- Objetivos do artigo\n\n### 2. Fundamentação Teórica  \n- Conceitos fundamentais\n- Estado da arte\n- Revisão da literatura\n\n### 3. Análise Crítica\n- Vantagens e limitações\n- Casos de uso práticos\n- Comparações com alternativas\n\n### 4. Discussão e Implicações\n- Impactos na área\n- Desafios identificados\n- Oportunidades futuras\n\n### 5. Conclusão\n- Síntese dos pontos principais\n- Contribuições do trabalho\n- Sugestões para pesquisas futuras\n\n**Palavras-chave**: sistema multiagente, inteligência artificial, automação\n",
+  "research": "\n## Plano Estruturado\n\n### 1. Introdução\n- Contextualização do tema\n- Relevância e importância atual\n- Objetivos do artigo\n\n### 2. Fundamentação Teórica  \n- Conceitos fundamentais\n- Estado da arte\n- Revisão da literatura\n\n### 3. Análise Crítica\n- Vantagens e limitações\n- Casos de uso práticos\n- Comparações com alternativas\n\n### 4. Discussão e Implicações\n- Impactos na área\n- Desafios identificados\n- Oportunidades futuras\n\n### 5. Conclusão\n- Síntese dos pontos principais\n- Contribuições do trabalho\n- Sugestões para pesquisas futuras\n\n**Palavras-chave**: sistema multiagente, inteligência artificial, automação\n",
+  "critic_history": [
+    {
+      "iteration": 1,
+      "content": "\n## Plano Estruturado\n\n### 1. Introdução\n- Contextualização do tema\n- Relevância e importância atual\n- Objetivos do artigo\n\n### 2. Fundamentação Teórica  \n- Conceitos fundamentais\n- Estado da arte\n- Revisão da literatura\n\n### 3. Análise Crítica\n- Vantagens e limitações\n- Casos de uso práticos\n- Comparações com alternativas\n\n### 4. Discussão e Implicações\n- Impactos na área\n- Desafios identificados\n- Oportunidades futuras\n\n### 5. Conclusão\n- Síntese dos pontos principais\n- Contribuições do trabalho\n- Sugestões para pesquisas futuras\n\n**Palavras-chave**: sistema multiagente, inteligência artificial, automação\n",
+      "score": 6.0
+    }
+  ],
+  "final_score": 6.0,
+  "iterations_used": 1,
+  "max_iterations": 1,
+  "approved": false,
+  "llm_calls": 4,
+  "execution_time_seconds": 0.001785,
+  "provider_info": {
+    "type": "simulation",
+    "model": "simulado"
+  },
+  "timestamp": "2025-09-05T08:47:57.820222"
+}
