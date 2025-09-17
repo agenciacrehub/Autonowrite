@@ -1,0 +1,93 @@
+{
+  "experiment_id": "exp_20250917_153742",
+  "topics": [
+    "Sistemas Multiagente em Inteligência Artificial",
+    "Engenharia de Prompt para Modelos de Linguagem",
+    "Ciclos de Crítica e Refinamento em IA Generativa",
+    "Framework CrewAI para Automação de Tarefas",
+    "Avaliação de Qualidade em Geração Automática de Texto"
+  ],
+  "configurations": [
+    {
+      "max_iterations": 1,
+      "results": [
+        {
+          "topic": "Sistemas Multiagente em Inteligência Artificial",
+          "final_score": 8.0,
+          "iterations_used": 1,
+          "execution_time": 25.136468,
+          "llm_calls": 4,
+          "approved": true,
+          "content_length": 5020
+        },
+        {
+          "topic": "Engenharia de Prompt para Modelos de Linguagem",
+          "final_score": 8.5,
+          "iterations_used": 1,
+          "execution_time": 34.103207,
+          "llm_calls": 4,
+          "approved": true,
+          "content_length": 5764
+        },
+        {
+          "topic": "Ciclos de Crítica e Refinamento em IA Generativa",
+          "final_score": 8.0,
+          "iterations_used": 1,
+          "execution_time": 49.355309,
+          "llm_calls": 4,
+          "approved": true,
+          "content_length": 5821
+        },
+        {
+          "topic": "Framework CrewAI para Automação de Tarefas",
+          "final_score": 8.0,
+          "iterations_used": 1,
+          "execution_time": 67.749145,
+          "llm_calls": 4,
+          "approved": true,
+          "content_length": 3613
+        },
+        {
+          "topic": "Avaliação de Qualidade em Geração Automática de Texto",
+          "final_score": 8.0,
+          "iterations_used": 1,
+          "execution_time": 33.735573,
+          "llm_calls": 4,
+          "approved": true,
+          "content_length": 5909
+        }
+      ],
+      "statistics": {
+        "avg_score": 8.1,
+        "avg_time": 42.02,
+        "total_llm_calls": 20,
+        "approval_rate": 1.0
+      }
+    }
+  ],
+  "start_time": "2025-09-17T15:37:42.628232",
+  "end_time": "2025-09-17T15:41:12.708923",
+  "summary": {
+    "best_quality_config": {
+      "iterations": 1,
+      "avg_score": 8.1,
+      "avg_time": 42.02
+    },
+    "fastest_config": {
+      "iterations": 1,
+      "avg_score": 8.1,
+      "avg_time": 42.02
+    },
+    "most_efficient_config": {
+      "iterations": 1,
+      "avg_score": 8.1,
+      "avg_time": 42.02,
+      "efficiency_ratio": 0.19276534983341265
+    },
+    "quality_improvement_percent": 0.0,
+    "total_llm_calls": 20,
+    "recommendations": [
+      "Para uso rápido: 1 iteração(ões) oferece boa qualidade em 42.0s"
+    ]
+  }
+}

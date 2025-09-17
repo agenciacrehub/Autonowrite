@@ -1,0 +1,62 @@
+{
+  "context": {
+    "knowledge_domain": "Astronomia",
+    "target_audience": "Universitários",
+    "technical_level": "acadêmico",
+    "background_info": null,
+    "key_concepts": [
+      "Buracos Negros",
+      "Disco de acreção",
+      "Radiação Hawking",
+      "Black Holes",
+      "Singularidade",
+      "Espaço-Tempo",
+      "Massa"
+    ],
+    "assumptions": []
+  },
+  "objectives": {
+    "main_purpose": "Criar um artigo científico sobre Buracos Negros para ajudar Universitários de Física, Astronomia e etc... a entenderem sobre o assunto",
+    "key_questions": [
+      "O que é um buraco negro",
+      "Como se formam buracos negros",
+      "Como eles se alimentam",
+      "Como foram descobertos"
+    ],
+    "expected_outcomes": [],
+    "success_metrics": []
+  },
+  "scope": {
+    "must_include": [
+      "Discorra de maneira detalhada sobre buracos negros, sua existência, achados interessantes e etc..."
+    ],
+    "must_exclude": [],
+    "word_count_target": null,
+    "depth_level": 2,
+    "time_period": null
+  },
+  "sources": {
+    "preferred_sources": [
+      "Google Academico",
+      "Science"
+    ],
+    "time_period": null,
+    "key_authors": [
+      "Stephen Hawking",
+      "Einstein"
+    ],
+    "required_citations": true,
+    "min_sources": 3
+  },
+  "style": {
+    "writing_tone": "acadêmico",
+    "required_sections": [],
+    "formatting_guidelines": {},
+    "language": "pt-BR",
+    "examples": []
+  },
+  "metadata": {
+    "created_at": "auto"
+  },
+  "created_at": "2025-09-05T12:09:15.607910"
+}

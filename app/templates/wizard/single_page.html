@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+
+{% block title %}Criar Novo Projeto - Wizard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-magic me-2"></i>Assistente de Criação de Projeto
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">Progresso</small>
+                            <small class="text-muted" id="progress-text">Passo 1 de 6</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 id="progress-bar" style="width: 16.67%" 
+                                 aria-valuenow="1" aria-valuemin="0" aria-valuemax="6">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Navigation -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <nav class="nav nav-pills nav-fill" id="step-nav">
+                                <a class="nav-link active" href="#" data-step="1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span class="d-none d-sm-inline">Contexto</span>
+                                </a>
+                                <a class="nav-link disabled" href="#" data-step="2">
+                                    <i class="fas fa-bullseye me-1"></i>
+                                    <span class="d-none d-sm-inline">Objetivos</span>
+                                </a>
+                                <a class="nav-link disabled" href="#" data-step="3">
+                                    <i class="fas fa-list me-1"></i>
+                                    <span class="d-none d-sm-inline">Estrutura</span>
+                                </a>
+                                <a class="nav-link disabled" href="#" data-step="4">
+                                    <i class="fas fa-palette me-1"></i>
+                                    <span class="d-none d-sm-inline">Estilo</span>
+                                </a>
+                                <a class="nav-link disabled" href="#" data-step="5">
+                                    <i class="fas fa-cog me-1"></i>
+                                    <span class="d-none d-sm-inline">Configurações</span>
+                                </a>
+                                <a class="nav-link disabled" href="#" data-step="6">
+                                    <i class="fas fa-check me-1"></i>
+                                    <span class="d-none d-sm-inline">Revisão</span>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <form method="POST" id="wizard-form" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="current_step" id="current_step" value="1">
+                        
+                        <!-- Step 1: Contexto e Domínio -->
+                        <div class="step-content" id="step-1">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">1. Contexto e Domínio</h5>
+                                <p class="text-muted">Informações básicas sobre o conteúdo que você deseja criar.</p>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-group">
+                                        {{ form.project_title.label(class="form-label") }}
+                                        {{ form.project_title(class="form-control", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, informe um título para o projeto (mínimo 5 caracteres).
+                                        </div>
+                                        <small class="form-text text-muted">Um título descritivo para o seu projeto.</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.knowledge_domain.label(class="form-label") }}
+                                        {{ form.knowledge_domain(class="form-control", placeholder="Ex: Tecnologia, Saúde, Educação", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, informe o domínio de conhecimento.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.target_audience.label(class="form-label") }}
+                                        {{ form.target_audience(class="form-control", placeholder="Ex: Estudantes Universitários", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, informe o público-alvo.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.technical_level.label(class="form-label") }}
+                                        {{ form.technical_level(class="form-select", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, selecione o nível técnico.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        {{ form.background_info.label(class="form-label") }}
+                                        {{ form.background_info(class="form-control", rows="4", placeholder="Forneça informações adicionais que possam ser úteis...") }}
+                                        <small class="form-text text-muted">
+                                            Contexto adicional, pré-requisitos ou informações relevantes sobre o tópico.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Objetivos do Conteúdo -->
+                        <div class="step-content d-none" id="step-2">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">2. Objetivos do Conteúdo</h5>
+                                <p class="text-muted">Defina os objetivos e propósito principal do conteúdo que será gerado.</p>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.main_purpose.label(class="form-label") }}
+                                {{ form.main_purpose(class="form-control", rows="4", placeholder="Qual é o objetivo principal deste conteúdo? O que você espera alcançar?", required=True) }}
+                                <div class="invalid-feedback">
+                                    Por favor, descreva o propósito principal.
+                                </div>
+                                <small class="form-text text-muted">
+                                    Seja específico sobre o que você deseja que o conteúdo alcance.
+                                </small>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.learning_objectives.label(class="form-label") }}
+                                {{ form.learning_objectives(class="form-control", rows="4", placeholder="O que os leitores devem aprender com este conteúdo?") }}
+                                <small class="form-text text-muted">
+                                    Liste os principais objetivos de aprendizagem ou conhecimentos que o leitor deve adquirir.
+                                </small>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.success_criteria.label(class="form-label") }}
+                                {{ form.success_criteria(class="form-control", rows="3", placeholder="Como você saberá que o conteúdo foi bem-sucedido?") }}
+                                <small class="form-text text-muted">
+                                    Defina critérios mensuráveis de sucesso para o conteúdo.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Estrutura e Organização -->
+                        <div class="step-content d-none" id="step-3">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">3. Estrutura e Organização</h5>
+                                <p class="text-muted">Como o conteúdo deve ser estruturado e organizado.</p>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.content_type.label(class="form-label") }}
+                                {{ form.content_type(class="form-select", required=True) }}
+                                <div class="invalid-feedback">
+                                    Por favor, selecione o tipo de conteúdo.
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.structure_preference.label(class="form-label") }}
+                                {{ form.structure_preference(class="form-select", required=True) }}
+                                <div class="invalid-feedback">
+                                    Por favor, selecione a estrutura preferida.
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.sections_topics.label(class="form-label") }}
+                                {{ form.sections_topics(class="form-control", rows="5", placeholder="Liste os principais tópicos ou seções que devem ser abordados...") }}
+                                <small class="form-text text-muted">
+                                    Liste os tópicos principais, um por linha ou separados por vírgula.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Estilo e Tom -->
+                        <div class="step-content d-none" id="step-4">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">4. Estilo e Tom</h5>
+                                <p class="text-muted">Defina o estilo de escrita e tom do conteúdo.</p>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.writing_style.label(class="form-label") }}
+                                        {{ form.writing_style(class="form-select", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, selecione o estilo de escrita.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.tone.label(class="form-label") }}
+                                        {{ form.tone(class="form-select", required=True) }}
+                                        <div class="invalid-feedback">
+                                            Por favor, selecione o tom.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.language_complexity.label(class="form-label") }}
+                                {{ form.language_complexity(class="form-select", required=True) }}
+                                <div class="invalid-feedback">
+                                    Por favor, selecione a complexidade da linguagem.
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.style_references.label(class="form-label") }}
+                                {{ form.style_references(class="form-control", rows="3", placeholder="Descreva referências de estilo ou exemplos...") }}
+                                <small class="form-text text-muted">
+                                    Mencione autores, publicações ou estilos específicos que devem servir de referência.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Configurações Avançadas -->
+                        <div class="step-content d-none" id="step-5">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">5. Configurações Avançadas</h5>
+                                <p class="text-muted">Configurações adicionais e preferências específicas.</p>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.estimated_length.label(class="form-label") }}
+                                        {{ form.estimated_length(class="form-select") }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        {{ form.output_format.label(class="form-label") }}
+                                        {{ form.output_format(class="form-select") }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.special_requirements.label(class="form-label") }}
+                                {{ form.special_requirements(class="form-control", rows="4", placeholder="Descreva requisitos especiais, restrições ou considerações...") }}
+                                <small class="form-text text-muted">
+                                    Inclua qualquer requisito específico, restrições ou considerações especiais.
+                                </small>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                {{ form.additional_notes.label(class="form-label") }}
+                                {{ form.additional_notes(class="form-control", rows="3", placeholder="Observações adicionais...") }}
+                                <small class="form-text text-muted">
+                                    Qualquer informação adicional que possa ser útil para a geração do conteúdo.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Revisão Final -->
+                        <div class="step-content d-none" id="step-6">
+                            <div class="mb-4">
+                                <h5 class="font-weight-bold text-gray-800 mb-2">6. Revisão Final</h5>
+                                <p class="text-muted">Revise todas as informações antes de finalizar o projeto.</p>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Revise cuidadosamente todas as informações fornecidas. Você poderá editar estes dados posteriormente.
+                            </div>
+                            
+                            <div id="review-content">
+                                <!-- Content will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <div>
+                                <button type="button" id="btn-back" class="btn btn-outline-secondary d-none">
+                                    <i class="fas fa-arrow-left me-1"></i> Anterior
+                                </button>
+                                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary" id="btn-cancel">
+                                    <i class="fas fa-times me-1"></i> Cancelar
+                                </a>
+                            </div>
+                            <div>
+                                <button type="button" id="btn-next" class="btn btn-primary">
+                                    Próximo <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                                <button type="submit" name="save_draft" class="btn btn-outline-secondary ms-2">
+                                    <i class="far fa-save me-1"></i> Salvar Rascunho
+                                </button>
+                                <button type="submit" name="submit" id="btn-submit" class="btn btn-success ms-2 d-none">
+                                    <i class="fas fa-check me-1"></i> Finalizar Projeto
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 6;
+    
+    // Elements
+    const stepContents = document.querySelectorAll('.step-content');
+    const stepNavLinks = document.querySelectorAll('#step-nav .nav-link');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const currentStepInput = document.getElementById('current_step');
+    const btnNext = document.getElementById('btn-next');
+    const btnBack = document.getElementById('btn-back');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnCancel = document.getElementById('btn-cancel');
+    const form = document.getElementById('wizard-form');
+    
+    // Initialize
+    updateUI();
+    
+    // Next button click
+    btnNext.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (validateCurrentStep()) {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            }
+        }
+    });
+    
+    // Back button click
+    btnBack.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (currentStep > 1) {
+            currentStep--;
+            updateUI();
+        }
+    });
+    
+    // Step navigation click
+    stepNavLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetStep = parseInt(this.dataset.step);
+            if (!this.classList.contains('disabled') && targetStep !== currentStep) {
+                if (targetStep < currentStep || validateCurrentStep()) {
+                    currentStep = targetStep;
+                    updateUI();
+                }
+            }
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        if (!validateCurrentStep()) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Update current step in form
+        currentStepInput.value = currentStep;
+        
+        // If it's the final submit, mark as completed
+        if (e.submitter && e.submitter.name === 'submit') {
+            // Add a hidden field to indicate completion
+            const completedInput = document.createElement('input');
+            completedInput.type = 'hidden';
+            completedInput.name = 'prompt_completed';
+            completedInput.value = 'true';
+            form.appendChild(completedInput);
+        }
+    });
+    
+    function updateUI() {
+        // Update step content visibility
+        stepContents.forEach((content, index) => {
+            if (index + 1 === currentStep) {
+                content.classList.remove('d-none');
+            } else {
+                content.classList.add('d-none');
+            }
+        });
+        
+        // Update navigation
+        stepNavLinks.forEach((link, index) => {
+            const stepNum = index + 1;
+            link.classList.remove('active', 'disabled');
+            
+            if (stepNum === currentStep) {
+                link.classList.add('active');
+            } else if (stepNum < currentStep || isStepCompleted(stepNum)) {
+                // Allow navigation to completed steps
+            } else {
+                link.classList.add('disabled');
+            }
+        });
+        
+        // Update progress bar
+        const progress = (currentStep / totalSteps) * 100;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', currentStep);
+        progressText.textContent = `Passo ${currentStep} de ${totalSteps}`;
+        
+        // Update buttons
+        if (currentStep === 1) {
+            btnBack.classList.add('d-none');
+            btnCancel.classList.remove('d-none');
+        } else {
+            btnBack.classList.remove('d-none');
+            btnCancel.classList.add('d-none');
+        }
+        
+        if (currentStep === totalSteps) {
+            btnNext.classList.add('d-none');
+            btnSubmit.classList.remove('d-none');
+            populateReview();
+        } else {
+            btnNext.classList.remove('d-none');
+            btnSubmit.classList.add('d-none');
+        }
+        
+        // Update current step input
+        currentStepInput.value = currentStep;
+    }
+    
+    function validateCurrentStep() {
+        const currentStepElement = document.getElementById(`step-${currentStep}`);
+        const requiredFields = currentStepElement.querySelectorAll('[required]');
+        let isValid = true;
+        
+        // Remove previous validation classes
+        form.classList.remove('was-validated');
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+                
+                // Special validation for project title (minimum 5 characters)
+                if (field.name === 'project_title' && field.value.trim().length < 5) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                }
+            }
+        });
+        
+        if (!isValid) {
+            form.classList.add('was-validated');
+        }
+        
+        return isValid;
+    }
+    
+    function isStepCompleted(stepNum) {
+        const stepElement = document.getElementById(`step-${stepNum}`);
+        const requiredFields = stepElement.querySelectorAll('[required]');
+        
+        for (let field of requiredFields) {
+            if (!field.value.trim()) {
+                return false;
+            }
+            if (field.name === 'project_title' && field.value.trim().length < 5) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    function populateReview() {
+        const reviewContent = document.getElementById('review-content');
+        const formData = new FormData(form);
+        
+        let html = '<div class="row">';
+        
+        // Step 1 - Context
+        html += '<div class="col-md-6 mb-4">';
+        html += '<h6 class="font-weight-bold text-primary">Contexto</h6>';
+        html += `<p><strong>Título:</strong> ${formData.get('project_title') || 'Não informado'}</p>`;
+        html += `<p><strong>Domínio:</strong> ${formData.get('knowledge_domain') || 'Não informado'}</p>`;
+        html += `<p><strong>Público-alvo:</strong> ${formData.get('target_audience') || 'Não informado'}</p>`;
+        html += `<p><strong>Nível técnico:</strong> ${formData.get('technical_level') || 'Não informado'}</p>`;
+        html += '</div>';
+        
+        // Step 2 - Objectives
+        html += '<div class="col-md-6 mb-4">';
+        html += '<h6 class="font-weight-bold text-primary">Objetivos</h6>';
+        html += `<p><strong>Propósito principal:</strong> ${(formData.get('main_purpose') || 'Não informado').substring(0, 100)}${formData.get('main_purpose')?.length > 100 ? '...' : ''}</p>`;
+        html += `<p><strong>Objetivos de aprendizagem:</strong> ${(formData.get('learning_objectives') || 'Não informado').substring(0, 100)}${formData.get('learning_objectives')?.length > 100 ? '...' : ''}</p>`;
+        html += '</div>';
+        
+        html += '</div>';
+        
+        reviewContent.innerHTML = html;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Meus Projetos - AutonoWrite{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Meus Projetos</h1>
+        <div>
+            <a href="{{ url_for('projects.import_project') }}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-file-import me-1"></i> Importar
+            </a>
+            <a href="{{ url_for('projects.new_project') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Novo Projeto
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Pesquisar</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search if search }}" placeholder="Título ou descrição">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="all" {% if not status or status == 'all' %}selected{% endif %}>Todos os status</option>
+                        <option value="draft" {% if status == 'draft' %}selected{% endif %}>Rascunho</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Ativo</option>
+                        <option value="paused" {% if status == 'paused' %}selected{% endif %}>Pausado</option>
+                        <option value="archived" {% if status == 'archived' %}selected{% endif %}>Arquivado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sort" class="form-label">Ordenar por</label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="updated" {% if sort == 'updated' %}selected{% endif %}>Última atualização</option>
+                        <option value="created" {% if sort == 'created' %}selected{% endif %}>Data de criação</option>
+                        <option value="title" {% if sort == 'title' %}selected{% endif %}>Título (A-Z)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Projects List -->
+    {% if projects.items %}
+        <div class="row">
+            {% for project in projects.items %}
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card border-left-{% if project.status == 'active' %}success{% elif project.status == 'paused' %}warning{% elif project.status == 'archived' %}secondary{% else %}primary{% endif %} shadow h-100">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-{% if project.status == 'active' %}success{% elif project.status == 'paused' %}warning{% elif project.status == 'archived' %}secondary{% else %}primary{% endif %}">
+                            {{ project.title|truncate(30) }}
+                        </h6>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" href="{{ url_for('projects.view_project', project_id=project.id) }}"><i class="fas fa-eye fa-sm fa-fw me-2 text-gray-400"></i> Visualizar</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('projects.edit_project', project_id=project.id) }}"><i class="fas fa-edit fa-sm fa-fw me-2 text-gray-400"></i> Editar</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}"><i class="fas fa-tachometer-alt fa-sm fa-fw me-2 text-gray-400"></i> Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteProjectModal{{ project.id }}"><i class="fas fa-trash-alt fa-sm fa-fw me-2 text-gray-400"></i> Excluir</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {% if project.description %}
+                                <p class="text-muted">{{ project.description|truncate(150) }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic">Nenhuma descrição fornecida</p>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="small text-muted">Criado em</div>
+                                <div>{{ project.created_at.strftime('%d/%m/%Y') }}</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="small text-muted">Status</div>
+                                <span class="badge bg-{% if project.status == 'active' %}success{% elif project.status == 'paused' %}warning{% elif project.status == 'archived' %}secondary{% else %}primary{% endif %}">
+                                    {{ project.status|title }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-arrow-right me-1"></i> Acessar
+                            </a>
+                            <div class="text-muted small">
+                                {% set execution_count = project.executions|length %}
+                                {{ execution_count }} {{ 'execução' if execution_count == 1 else 'execuções' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Project Modal -->
+                <div class="modal fade" id="deleteProjectModal{{ project.id }}" tabindex="-1" aria-labelledby="deleteProjectModalLabel{{ project.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteProjectModalLabel{{ project.id }}">Confirmar exclusão</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Tem certeza que deseja excluir o projeto <strong>{{ project.title }}</strong>?</p>
+                                <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Esta ação não pode ser desfeita e todos os dados do projeto serão perdidos.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <form action="{{ url_for('projects.delete_project', project_id=project.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash-alt me-1"></i> Excluir Projeto
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if projects.pages > 1 %}
+        <nav aria-label="Navegação de páginas" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not projects.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('projects.list_projects', page=projects.prev_num, status=status, search=search, sort=sort, order=order) }}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                
+                {% for page_num in projects.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=3) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == projects.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('projects.list_projects', page=page_num, status=status, search=search, sort=sort, order=order) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {% if not projects.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('projects.list_projects', page=projects.next_num, status=status, search=search, sort=sort, order=order) }}" aria-label="Próximo">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-gray-300 mb-3"></i>
+            <h5>Nenhum projeto encontrado</h5>
+            <p class="text-muted">Você ainda não criou nenhum projeto. Clique no botão abaixo para começar.</p>
+            <a href="{{ url_for('projects.new_project') }}" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-1"></i> Criar Primeiro Projeto
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+    
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+    
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+    
+    .border-left-secondary {
+        border-left: 0.25rem solid #858796 !important;
+    }
+    
+    .dropdown-toggle::after {
+        display: none;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    .page-link {
+        color: #4e73df;
+    }
+</style>
+{% endblock %}

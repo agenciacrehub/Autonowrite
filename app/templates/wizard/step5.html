@@ -1,0 +1,111 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Estilo e Formatação{% endblock %}
+
+{% block wizard_description %}
+Defina o tom de escrita, idioma e diretrizes de formatação para o conteúdo.
+{% endblock %}
+
+{% block wizard_content %}
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    <input type="hidden" name="step" value="{{ step }}">
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="form-group">
+                {{ form.writing_tone.label(class="form-label") }}
+                {{ form.writing_tone(class="form-select" + (' is-invalid' if form.writing_tone.errors else '')) }}
+                <div class="invalid-feedback">
+                    {{ form.writing_tone.errors[0] if form.writing_tone.errors else 'Por favor, selecione um tom de escrita.' }}
+                </div>
+                <small class="form-text text-muted">
+                    O tom define como o conteúdo será apresentado ao leitor.
+                </small>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="form-group">
+                {{ form.language.label(class="form-label") }}
+                {{ form.language(class="form-select" + (' is-invalid' if form.language.errors else '')) }}
+                <div class="invalid-feedback">
+                    {{ form.language.errors[0] if form.language.errors else 'Por favor, selecione um idioma.' }}
+                </div>
+                <small class="form-text text-muted">
+                    Idioma em que o conteúdo será gerado.
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group mb-4">
+        {{ form.required_sections.label(class="form-label") }}
+        {{ form.required_sections(class="form-control" + (' is-invalid' if form.required_sections.errors else ''), 
+                                rows="3",
+                                placeholder="Ex:\nIntrodução\nMetodologia\nResultados\nConclusão"
+                               ) }}
+        <div class="invalid-feedback">
+            {{ form.required_sections.errors[0] if form.required_sections.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Seções que devem estar presentes no conteúdo. Uma por linha.
+        </small>
+    </div>
+    
+    <div class="form-group">
+        {{ form.formatting_guidelines.label(class="form-label") }}
+        {{ form.formatting_guidelines(class="form-control" + (' is-invalid' if form.formatting_guidelines.errors else ''), 
+                                    rows="4",
+                                    placeholder="Ex: Usar subtítulos em negrito, incluir listas numeradas, destacar termos técnicos..."
+                                   ) }}
+        <div class="invalid-feedback">
+            {{ form.formatting_guidelines.errors[0] if form.formatting_guidelines.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Diretrizes específicas sobre como o conteúdo deve ser formatado.
+        </small>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            <button type="submit" name="back" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div>
+            <button type="submit" name="next" class="btn btn-primary">
+                Revisar <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+            <button type="submit" name="save_draft" class="btn btn-outline-secondary ms-2">
+                <i class="far fa-save me-1"></i>Salvar Rascunho
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enable Bootstrap form validation
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações - {{ project.title }} - AutonoWrite{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="text-decoration-none text-gray-800">
+                <i class="fas fa-arrow-left me-2"></i>Configurações
+            </a>
+            <small class="text-muted">{{ project.title }}</small>
+        </h1>
+        <div>
+            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i> Cancelar
+            </a>
+        </div>
+    </div>
+
+    <div class="row
+        <div class="col-lg-8">
+            <!-- General Settings -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configurações Gerais</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Nome do Projeto</label>
+                                    <input type="text" class="form-control" value="{{ project.title }}" disabled>
+                                    <div class="form-text">
+                                        Para alterar o nome, vá para <a href="{{ url_for('projects.edit_project', project_id=project.id) }}">Editar Projeto</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">ID do Projeto</label>
+                                    <input type="text" class="form-control" value="{{ project.id }}" disabled>
+                                    <div class="form-text">
+                                        Identificador único deste projeto
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            {{ form.auto_save.label(class="form-check-label") }}
+                            <div class="form-check form-switch">
+                                {{ form.auto_save(class="form-check-input" + (' is-invalid' if form.auto_save.errors else ''), role="switch") }}
+                                <div class="invalid-feedback">
+                                    {{ form.auto_save.errors[0] if form.auto_save.errors }}
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                Salvar automaticamente as alterações no projeto
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            {{ form.notifications.label(class="form-check-label") }}
+                            <div class="form-check form-switch">
+                                {{ form.notifications(class="form-check-input" + (' is-invalid' if form.notifications.errors else ''), role="switch") }}
+                                <div class="invalid-feedback">
+                                    {{ form.notifications.errors[0] if form.notifications.errors }}
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                Receber notificações por e-mail sobre este projeto
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            {{ form.export_format.label(class="form-label") }}
+                            {{ form.export_format(class="form-select" + (' is-invalid' if form.export_format.errors else '')) }}
+                            <div class="invalid-feedback">
+                                {{ form.export_format.errors[0] if form.export_format.errors }}
+                            </div>
+                            <div class="form-text">
+                                Formato padrão para exportação de conteúdo
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="#" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetSettingsModal">
+                                    <i class="fas fa-undo me-1"></i> Redefinir Padrões
+                                </a>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Salvar Configurações
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="card border-left-danger shadow mb-4">
+                <div class="card-header py-3 bg-white">
+                    <h6 class="m-0 font-weight-bold text-danger">Zona de Perigo</h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="font-weight-bold text-danger mb-3">Exportar Projeto</h6>
+                    <p class="mb-3">
+                        Exporte todos os dados deste projeto para um arquivo. Isso inclui configurações, 
+                        conteúdo gerado e histórico de execuções.
+                    </p>
+                    <a href="{{ url_for('projects.export_project', project_id=project.id) }}" class="btn btn-outline-secondary mb-4">
+                        <i class="fas fa-download me-1"></i> Exportar Projeto
+                    </a>
+                    
+                    <hr class="my-4">
+                    
+                    <h6 class="font-weight-bold text-danger mb-3">Excluir Todas as Execuções</h6>
+                    <p class="mb-3">
+                        Remova permanentemente todo o histórico de execuções deste projeto. 
+                        Esta ação não pode ser desfeita.
+                    </p>
+                    <button class="btn btn-outline-danger mb-4" data-bs-toggle="modal" data-bs-target="#deleteExecutionsModal">
+                        <i class="fas fa-trash-alt me-1"></i> Excluir Histórico de Execuções
+                    </button>
+                    
+                    <hr class="my-4">
+                    
+                    <h6 class="font-weight-bold text-danger mb-3">Excluir Projeto</h6>
+                    <p class="mb-3">
+                        Remova permanentemente este projeto e todos os seus dados. 
+                        Esta ação não pode ser desfeita.
+                    </p>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProjectModal">
+                        <i class="fas fa-trash-alt me-1"></i> Excluir Projeto
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Settings Navigation -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configurações</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-home fa-fw me-2 text-gray-400"></i>
+                            Visão Geral do Projeto
+                        </a>
+                        <a href="{{ url_for('projects.edit_project', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-edit fa-fw me-2 text-gray-400"></i>
+                            Editar Projeto
+                        </a>
+                        <a href="{{ url_for('projects.project_settings', project_id=project.id) }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-cog fa-fw me-2 text-white"></i>
+                            Configurações
+                        </a>
+                        <a href="{{ url_for('execution.project_executions', project_id=project.id) }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history fa-fw me-2 text-gray-400"></i>
+                            Histórico de Execuções
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informações do Projeto</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="mb-0">
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="badge bg-{{ 'success' if project.status == 'active' else 'warning' if project.status == 'paused' else 'secondary' if project.status == 'archived' else 'primary' }}">
+                                {{ project.status|title }}
+                            </span>
+                        </dd>
+                        
+                        <dt>Criado em</dt>
+                        <dd>{{ project.created_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                        
+                        <dt>Última atualização</dt>
+                        <dd>{{ project.updated_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                        
+                        <dt>Execuções</dt>
+                        <dd>{{ project.executions|length }}</dd>
+                    </dl>
+                </div>
+            </div>
+            
+            <!-- Export Options -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Exportar Dados</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        Exporte os dados do projeto em diferentes formatos para backup ou uso externo.
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('projects.export_project', project_id=project.id, format='json') }}" class="btn btn-outline-secondary text-start mb-2">
+                            <i class="fas fa-file-code me-2"></i> Exportar como JSON
+                        </a>
+                        <a href="{{ url_for('projects.export_project', project_id=project.id, format='markdown') }}" class="btn btn-outline-secondary text-start mb-2">
+                            <i class="fas fa-file-alt me-2"></i> Exportar como Markdown
+                        </a>
+                        <a href="{{ url_for('projects.export_project', project_id=project.id, format='html') }}" class="btn btn-outline-secondary text-start">
+                            <i class="fas fa-file-export me-2"></i> Exportar como HTML
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Settings Modal -->
+<div class="modal fade" id="resetSettingsModal" tabindex="-1" aria-labelledby="resetSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetSettingsModalLabel">Redefinir Configurações</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja redefinir todas as configurações para os valores padrão?</p>
+                <p class="text-danger mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                    Esta ação não pode ser desfeita.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('projects.project_settings', project_id=project.id) }}" method="POST" class="d-inline">
+                    <input type="hidden" name="reset_settings" value="1">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-undo me-1"></i> Redefinir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Executions Modal -->
+<div class="modal fade" id="deleteExecutionsModal" tabindex="-1" aria-labelledby="deleteExecutionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteExecutionsModalLabel">Excluir Histórico de Execuções</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir todo o histórico de execuções deste projeto?</p>
+                <p class="text-danger mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                    Esta ação não pode ser desfeita e removerá permanentemente {{ project.executions|length }} execuções.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('projects.delete_project_executions', project_id=project.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Excluir Tudo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Project Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProjectModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o projeto <strong>{{ project.title }}</strong>?</p>
+                <p class="text-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                    Esta ação não pode ser desfeita e todos os dados do projeto serão permanentemente removidos.
+                </p>
+                <p class="mb-0">
+                    <strong>Isso inclui:</strong>
+                </p>
+                <ul>
+                    <li>Todas as execuções e seus logs</li>
+                    <li>Qualquer conteúdo gerado</li>
+                    <li>Configurações personalizadas</li>
+                </ul>
+                <p class="mb-0">
+                    <strong>Total de execuções que serão removidas:</strong> {{ project.executions|length }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('projects.delete_project', project_id=project.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Sim, Excluir Projeto
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Habilita a validação de formulário do Bootstrap
+(function () {
+    'use strict'
+    
+    // Busca todos os formulários que queremos aplicar estilos de validação personalizados
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop sobre eles e evita o envio
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+
+<style>
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+.list-group-item.active {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.form-switch .form-check-input {
+    width: 2.5em;
+    margin-left: -2.5em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+    background-position: left center;
+    border-radius: 2em;
+    transition: background-position 0.15s ease-in-out;
+}
+
+.form-switch .form-check-input:checked {
+    background-position: right center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.was-validated .form-check-input:valid, .form-check-input.is-valid {
+    border-color: #1cc88a;
+}
+
+.was-validated .form-check-input:valid:checked, .form-check-input.is-valid:checked {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+}
+
+.was-validated .form-check-input:valid:focus, .form-check-input.is-valid:focus {
+    box-shadow: 0 0 0 0.25rem rgba(28, 200, 138, 0.25);
+}
+</style>
+{% endblock %}

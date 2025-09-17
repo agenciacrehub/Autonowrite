@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="text-decoration-none">
+                <i class="fas fa-arrow-left me-2"></i>{{ project.title }}
+            </a>
+        </h1>
+        <div>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-download me-1"></i> Exportar
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('results.export_results', project_id=project.id, format='json') }}">
+                        <i class="fas fa-file-code me-1"></i> JSON
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('results.export_results', project_id=project.id, format='markdown') }}">
+                        <i class="fab fa-markdown me-1"></i> Markdown
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('results.export_results', project_id=project.id, format='txt') }}">
+                        <i class="fas fa-file-alt me-1"></i> Texto
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% if project.content and project.content.get('generated_content') %}
+    {% set generated_content = project.content.get('generated_content') %}
+    
+    <div class="row">
+        <div class="col-xl-8">
+            <!-- Generated Content -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Conteúdo Gerado</h6>
+                    <div>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Score: {{ "%.1f"|format(generated_content.get('final_score', 0)) }}/10
+                        </span>
+                        <span class="badge bg-info">
+                            {{ generated_content.get('iterations_used', 0) }} iterações
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if generated_content.get('final_content') %}
+                    <div class="content-display">
+                        {{ generated_content.get('final_content')|safe }}
+                    </div>
+                    {% else %}
+                    <div class="text-muted text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                        <p>Conteúdo não disponível</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Generation Process -->
+            {% if generated_content.get('phases') %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Processo de Geração</h6>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="processAccordion">
+                        {% for phase_name, phase_data in generated_content.get('phases', {}).items() %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                                    <i class="fas fa-cog me-2"></i>
+                                    {{ phase_name|title }}
+                                    {% if phase_data.get('content') %}
+                                    <span class="badge bg-success ms-2">Concluído</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                                 data-bs-parent="#processAccordion">
+                                <div class="accordion-body">
+                                    {% if phase_data.get('content') %}
+                                    <div class="phase-content">
+                                        {{ phase_data.get('content')|safe }}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-muted">Sem conteúdo disponível para esta fase</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Iterations History -->
+            {% if generated_content.get('iterations') %}
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Histórico de Iterações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for iteration in generated_content.get('iterations', []) %}
+                        <div class="timeline-item mb-4">
+                            <div class="timeline-marker">
+                                <span class="badge bg-primary">{{ loop.index }}</span>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">Iteração {{ loop.index }}</h6>
+                                    <span class="badge bg-{% if iteration.get('score', 0) >= 8 %}success{% elif iteration.get('score', 0) >= 6 %}warning{% else %}danger{% endif %}">
+                                        Score: {{ "%.1f"|format(iteration.get('score', 0)) }}/10
+                                    </span>
+                                </div>
+                                {% if iteration.get('critique') %}
+                                <div class="critique mb-2">
+                                    <strong>Crítica:</strong>
+                                    <div class="text-muted">{{ iteration.get('critique') }}</div>
+                                </div>
+                                {% endif %}
+                                {% if iteration.get('content') %}
+                                <div class="iteration-content">
+                                    <details>
+                                        <summary class="btn btn-sm btn-outline-secondary">Ver conteúdo</summary>
+                                        <div class="mt-2 p-3 bg-light rounded">
+                                            {{ iteration.get('content')|safe }}
+                                        </div>
+                                    </details>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-xl-4">
+            <!-- Execution Summary -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Resumo da Execução</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="mb-0">
+                        {% if execution %}
+                        <dt>ID da Execução</dt>
+                        <dd><code>#{{ execution.id }}</code></dd>
+                        
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="badge bg-success">{{ execution.status.value|title }}</span>
+                        </dd>
+                        
+                        <dt>Iniciado em</dt>
+                        <dd>{{ execution.started_at.strftime('%d/%m/%Y %H:%M') if execution.started_at else '-' }}</dd>
+                        
+                        <dt>Concluído em</dt>
+                        <dd>{{ execution.completed_at.strftime('%d/%m/%Y %H:%M') if execution.completed_at else '-' }}</dd>
+                        
+                        {% if execution.started_at and execution.completed_at %}
+                        <dt>Duração</dt>
+                        <dd>{{ ((execution.completed_at - execution.started_at).total_seconds() / 60)|round(1) }} minutos</dd>
+                        {% endif %}
+                        {% endif %}
+                        
+                        <dt>Gerado em</dt>
+                        <dd>{{ project.content.get('generation_timestamp', 'Data não disponível') }}</dd>
+                        
+                        <dt>Palavras</dt>
+                        <dd>{{ generated_content.get('final_content', '')|length // 5 if generated_content.get('final_content') else 0 }} (aprox.)</dd>
+                        
+                        <dt>Score Final</dt>
+                        <dd>
+                            <div class="progress mb-1" style="height: 20px;">
+                                <div class="progress-bar bg-{% if generated_content.get('final_score', 0) >= 8 %}success{% elif generated_content.get('final_score', 0) >= 6 %}warning{% else %}danger{% endif %}" 
+                                     style="width: {{ (generated_content.get('final_score', 0) * 10)|int }}%">
+                                    {{ "%.1f"|format(generated_content.get('final_score', 0)) }}/10
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Project Details -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalhes do Projeto</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="mb-0">
+                        <dt>Domínio</dt>
+                        <dd>{{ project.content.get('knowledge_domain', 'Não especificado') }}</dd>
+                        
+                        <dt>Público-alvo</dt>
+                        <dd>{{ project.content.get('target_audience', 'Não especificado') }}</dd>
+                        
+                        <dt>Tipo de Conteúdo</dt>
+                        <dd>{{ project.content.get('content_type', 'Não especificado') }}</dd>
+                        
+                        <dt>Tom</dt>
+                        <dd>{{ project.content.get('tone', 'Não especificado') }}</dd>
+                        
+                        <dt>Extensão</dt>
+                        <dd>{{ project.content.get('length', 'Não especificado') }}</dd>
+                        
+                        {% if project.content.get('key_topics') %}
+                        <dt>Tópicos-chave</dt>
+                        <dd>
+                            {% for topic in project.content.get('key_topics', []) %}
+                            <span class="badge bg-secondary me-1">{{ topic }}</span>
+                            {% endfor %}
+                        </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                        <button id="copyContentBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-copy me-1"></i> Copiar Conteúdo
+                        </button>
+                        <button id="regenerateBtn" class="btn btn-outline-warning">
+                            <i class="fas fa-redo me-1"></i> Regenerar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No Results Available -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h4>Nenhum resultado disponível</h4>
+                    <p class="text-muted mb-4">Este projeto ainda não possui conteúdo gerado.</p>
+                    <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-primary">
+                        <i class="fas fa-play me-1"></i> Iniciar Geração
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Copy content functionality
+    $('#copyContentBtn').click(function() {
+        const content = $('.content-display').text();
+        if (content) {
+            navigator.clipboard.writeText(content).then(function() {
+                // Show success message
+                const btn = $('#copyContentBtn');
+                const originalText = btn.html();
+                btn.html('<i class="fas fa-check me-1"></i> Copiado!');
+                btn.removeClass('btn-outline-secondary').addClass('btn-success');
+                
+                setTimeout(function() {
+                    btn.html(originalText);
+                    btn.removeClass('btn-success').addClass('btn-outline-secondary');
+                }, 2000);
+            });
+        }
+    });
+    
+    // Regenerate content
+    $('#regenerateBtn').click(function() {
+        if (confirm('Tem certeza que deseja regenerar o conteúdo? O conteúdo atual será substituído.')) {
+            fetch(`/project/{{ project.id }}/execute`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.href = `{{ url_for('execution.execution_dashboard', project_id=project.id) }}`;
+                    } else {
+                        alert('Erro ao iniciar regeneração: ' + data.message);
+                    }
+                });
+        }
+    });
+});
+</script>
+
+<style>
+.content-display {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.content-display h1, .content-display h2, .content-display h3 {
+    color: #2c3e50;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.content-display p {
+    margin-bottom: 1.2rem;
+    text-align: justify;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+}
+
+.timeline-marker .badge {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid #007bff;
+}
+
+.phase-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    border-left: 3px solid #28a745;
+}
+
+.iteration-content details summary {
+    cursor: pointer;
+}
+
+.iteration-content details[open] summary {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

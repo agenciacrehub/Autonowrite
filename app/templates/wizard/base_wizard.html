@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+/* Custom styles for wizard steps */
+#progress-bar {
+    transition: width 0.6s ease;
+}
+
+.progress {
+    height: 10px !important;
+    border-radius: 5px;
+    margin-bottom: 2rem;
+}
+
+.wizard-step {
+    text-align: center;
+    position: relative;
+    padding: 0 10px;
+}
+
+.wizard-step .step-number {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: inline-block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.wizard-step.active .step-number {
+    background: #0d6efd;
+    color: white;
+}
+
+.wizard-step.completed .step-number {
+    background: #198754;
+    color: white;
+}
+
+.wizard-step .step-title {
+    font-size: 0.8rem;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wizard-step.active .step-title {
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.wizard-step.completed .step-title {
+    color: #198754;
+}
+
+/* Form validation styles */
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:valid,
+.form-control.is-valid {
+    border-color: #198754;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-control:invalid ~ .invalid-tooltip,
+.form-control.is-invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-tooltip {
+    display: block;
+}
+
+/* Additional form styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fa-check-circle {
+    color: #198754;
+}
+
+.fa-circle {
+    color: #dee2e6;
+}
+
+.text-primary {
+    color: #4e73df !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .wizard-step .step-title {
+        font-size: 0.7rem;
+    }
+    
+    .wizard-step {
+        padding: 0 5px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <!-- Progress Bar -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progress-bar" 
+                             role="progressbar" 
+                             data-progress="{{ progress|default(0) }}"
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             style="width: 0%">
+                            0%
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% for i in range(1, 7) %}
+                        <div class="wizard-step {% if i < step %}completed{% elif i == step %}active{% endif %}">
+                            <div class="step-number">{{ i }}</div>
+                            <div class="step-title">
+                                {% if step_titles and i <= step_titles|length %}
+                                    {{ step_titles[i-1] }}
+                                {% else %}
+                                    Passo {{ i }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            {% block extra_js %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/wizard.js') }}"></script>
+<script>
+// Initialize wizard when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bar
+    const progressBar = document.getElementById('progress-bar');
+    if (progressBar) {
+        const progress = parseInt(progressBar.dataset.progress || '0');
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = progress + '%';
+    }
+    
+    // Initialize form validation
+    initFormValidation();
+});
+</script>
+{% endblock %}
+            
+            <!-- Main Content -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h4 mb-0">
+                        {% if current_title %}{{ current_title }}{% else %}{{ self.wizard_title() }}{% endif %}
+                    </h2>
+                    {% if self.wizard_description() %}
+                    <p class="text-muted mb-0">{{ self.wizard_description() }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% block wizard_content %}{% endblock %}
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger mt-3">
+                        <h5 class="alert-heading">Erro no formulário</h5>
+                        <ul class="mb-0">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ form[field].label.text }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - AutonoWrite{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{{ url_for('projects.list_projects') }}" class="text-decoration-none text-gray-800">
+                <i class="fas fa-arrow-left me-2"></i>{{ project.title }}
+            </a>
+        </h1>
+        <div>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('projects.edit_project', project_id=project.id) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i> Editar
+                </a>
+                <a href="{{ url_for('projects.project_settings', project_id=project.id) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog me-1"></i> Configurações
+                </a>
+                <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-primary">
+                    <i class="fas fa-play me-1"></i> Executar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Info -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Project Details Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Visão Geral</h6>
+                    <span class="badge bg-{{ 'success' if project.status == 'active' else 'warning' if project.status == 'paused' else 'secondary' if project.status == 'archived' else 'primary' }}">
+                        {{ project.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    {% if project.description %}
+                        <p class="card-text mb-4">{{ project.description }}</p>
+                    {% else %}
+                        <p class="card-text text-muted mb-4">Nenhuma descrição fornecida para este projeto.</p>
+                    {% endif %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card border-left-primary shadow h-100 py-2 mb-4">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Última Execução
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {% if recent_executions %}
+                                                    {{ recent_executions[0].started_at.strftime('%d/%m/%Y %H:%M') }}
+                                                {% else %}
+                                                    Nenhuma execução
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-left-success shadow h-100 py-2 mb-4">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Total de Execuções
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {{ project.executions|length }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Content Preview -->
+                    <div class="mt-4">
+                        <h5 class="font-weight-bold text-gray-800 mb-3">Conteúdo Gerado</h5>
+                        {% if content_data and content_data.get('sections') %}
+                            <div class="card border-left-info">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Seção</th>
+                                                    <th>Status</th>
+                                                    <th>Última Atualização</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for section in content_data.sections %}
+                                                    <tr>
+                                                        <td>{{ section.title }}</td>
+                                                        <td>
+                                                            <span class="badge bg-{{ 'success' if section.status == 'completed' else 'warning' if section.status == 'in_progress' else 'secondary' }}">
+                                                                {{ section.status|replace('_', ' ')|title }}
+                                                            </span>
+                                                        </td>
+                                                        <td>{{ section.updated_at|default('N/A') }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-file-alt fa-3x text-gray-300 mb-3"></i>
+                                <p class="text-muted">Nenhum conteúdo gerado ainda.</p>
+                                <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-play me-1"></i> Iniciar Execução
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Executions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Últimas Execuções</h6>
+                    <a href="{{ url_for('execution.project_executions', project_id=project.id) }}" class="btn btn-sm btn-outline-primary">
+                        Ver Todas
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_executions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Iniciada em</th>
+                                        <th>Status</th>
+                                        <th>Progresso</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for execution in recent_executions %}
+                                        <tr>
+                                            <td>#{{ execution.id }}</td>
+                                            <td>{{ execution.started_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if execution.status.name == 'COMPLETED' else 'danger' if execution.status.name == 'FAILED' else 'primary' if execution.status.name == 'RUNNING' else 'secondary' }}">
+                                                    {{ execution.status.value|title }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar progress-bar-striped {% if execution.status.name == 'RUNNING' %}progress-bar-animated{% endif %}" 
+                                                         style="width: {{ (execution.progress * 100)|int }}%" 
+                                                         role="progressbar" 
+                                                         aria-valuenow="{{ (execution.progress * 100)|int }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                        {{ (execution.progress * 100)|int }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('execution.execution_dashboard', project_id=project.id, execution_id=execution.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Ver detalhes">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                            <p class="text-muted">Nenhuma execução encontrada.</p>
+                            <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-primary">
+                                <i class="fas fa-play me-1"></i> Iniciar Primeira Execução
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Project Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('execution.execution_dashboard', project_id=project.id) }}" class="btn btn-primary mb-2">
+                            <i class="fas fa-play me-1"></i> Iniciar Execução
+                        </a>
+                        <a href="{{ url_for('wizard.new_project', project_id=project.id) }}" class="btn btn-outline-info mb-2">
+                            <i class="fas fa-magic me-1"></i> 
+                            {% if prompt_completed %}
+                                Ver Prompt
+                            {% else %}
+                                Acessar Prompt
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('projects.export_project', project_id=project.id) }}" class="btn btn-outline-secondary mb-2">
+                            <i class="fas fa-download me-1"></i> Exportar Projeto
+                        </a>
+                        <a href="{{ url_for('projects.edit_project', project_id=project.id) }}" class="btn btn-outline-secondary mb-2">
+                            <i class="fas fa-edit me-1"></i> Editar Detalhes
+                        </a>
+                        <a href="{{ url_for('projects.project_settings', project_id=project.id) }}" class="btn btn-outline-secondary mb-2">
+                            <i class="fas fa-cog me-1"></i> Configurações
+                        </a>
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProjectModal">
+                            <i class="fas fa-trash-alt me-1"></i> Excluir Projeto
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informações do Projeto</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="mb-0">
+                        <dt>Criado em</dt>
+                        <dd>{{ project.created_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                        
+                        <dt>Última atualização</dt>
+                        <dd>{{ project.updated_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                        
+                        <dt>ID do Projeto</dt>
+                        <dd><code>{{ project.id }}</code></dd>
+                        
+                        {% if project.settings %}
+                            <dt>Idioma</dt>
+                            <dd>
+                                {% if project.settings.get('language') == 'pt-BR' %}
+                                    Português (Brasil)
+                                {% elif project.settings.get('language') == 'en-US' %}
+                                    English (US)
+                                {% else %}
+                                    {{ project.settings.get('language', 'Não especificado') }}
+                                {% endif %}
+                            </dd>
+                            
+                            <dt>Visibilidade</dt>
+                            <dd>
+                                {% if project.settings.get('visibility') == 'private' %}
+                                    <i class="fas fa-lock me-1"></i> Privado
+                                {% elif project.settings.get('visibility') == 'team' %}
+                                    <i class="fas fa-users me-1"></i> Time
+                                {% else %}
+                                    <i class="fas fa-globe me-1"></i> Público
+                                {% endif %}
+                            </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Estatísticas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total de Execuções
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                {{ project.executions|length }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Taxa de Sucesso
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                {% set completed = project.executions|selectattr('status', 'equalto', 'COMPLETED')|list|length %}
+                                {% set total = project.executions|length %}
+                                {{ '%.1f'|format((completed / total * 100) if total > 0 else 0) }}%
+                            </div>
+                        </div>
+                        
+                        <div class="mb-0">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tempo Médio de Execução
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                {% set completed_executions = project.executions|selectattr('completed_at', 'defined')|list %}
+                                {% if completed_executions|length > 0 %}
+                                    {% set total_seconds = 0 %}
+                                    {% for execution in completed_executions %}
+                                        {% if execution.started_at and execution.completed_at %}
+                                            {% set duration = (execution.completed_at - execution.started_at).total_seconds() %}
+                                            {% set total_seconds = total_seconds + duration %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ (total_seconds / completed_executions|length)|round|int }}s
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Project Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProjectModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o projeto <strong>{{ project.title }}</strong>?</p>
+                <p class="text-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i> 
+                    Esta ação não pode ser desfeita e todos os dados do projeto serão permanentemente removidos.
+                </p>
+                <p class="mb-0">
+                    <strong>Isso inclui:</strong>
+                </p>
+                <ul>
+                    <li>Todas as execuções e seus logs</li>
+                    <li>Qualquer conteúdo gerado</li>
+                    <li>Configurações personalizadas</li>
+                </ul>
+                <p class="mb-0">
+                    <strong>Total de execuções que serão removidas:</strong> {{ project.executions|length }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form action="{{ url_for('projects.delete_project', project_id=project.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Sim, Excluir Projeto
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Inicializa os tooltips
+$(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+})
+</script>
+{% endblock %}

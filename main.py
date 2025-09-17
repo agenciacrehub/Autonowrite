@@ -51,8 +51,47 @@ class LLMProvider:
             self._setup_simulation()
     
     def _setup_auto(self):
-        """Setup automático - prioriza modo de simulação para testes"""
-        print("⚠️  Usando modo de simulação por padrão")
+        """Setup automático inteligente baseado em ambiente e disponibilidade.
+
+        Ordem de seleção:
+        1. LLM_PROVIDER, se definido (groq/ollama/simulation)
+        2. GROQ_API_KEY presente e groq instalado -> groq
+        3. Ollama disponível -> ollama
+        4. Caso contrário -> simulation
+        """
+        provider_env = os.getenv("LLM_PROVIDER", "").strip().lower()
+        if provider_env in {"groq", "ollama", "simulation"}:
+            print(f"🔧 LLM_PROVIDER definido: {provider_env}")
+            try:
+                if provider_env == "groq":
+                    self._setup_groq()
+                    return
+                if provider_env == "ollama":
+                    self._setup_ollama()
+                    return
+                # simulation
+                self._setup_simulation()
+                return
+            except Exception as e:
+                print(f"⚠️  Falha ao inicializar provider '{provider_env}': {e}. Tentando fallback...")
+        
+        # Detecção automática
+        groq_key = os.getenv("GROQ_API_KEY")
+        if groq_key and GROQ_AVAILABLE:
+            try:
+                self._setup_groq()
+                return
+            except Exception as e:
+                print(f"⚠️  Falha Groq: {e}")
+        
+        if OLLAMA_AVAILABLE:
+            try:
+                self._setup_ollama()
+                return
+            except Exception as e:
+                print(f"⚠️  Falha Ollama: {e}")
+        
+        print("🎭 Usando simulação por não haver provider real disponível")
         self._setup_simulation()
     
     def _setup_groq(self):
@@ -63,8 +102,8 @@ class LLMProvider:
         
         self.client = Groq(api_key=api_key)
         self.provider_type = "groq"
-        self.model_name = "mixtral-8x7b-32768"
-        print("🚀 Usando Groq API (mixtral-8x7b-32768)")
+        self.model_name = "llama-3.3-70b-versatile"
+        print("🚀 Usando Groq API (llama-3.3-70b-versatile)")
     
     def _setup_ollama(self):
         """Configura Ollama local"""
@@ -206,7 +245,229 @@ class LLMProvider:
 - Métricas de avaliação: ROUGE, BLEU, avaliação humana
 """
     
-    def _simulate_writer(self) -> str:
+    def _simulate_writer(self, topic_hint: str = "") -> str:
+        # Generate content based on the topic hint
+        if "buraco" in topic_hint.lower() and "negro" in topic_hint.lower():
+            return self._simulate_black_holes_content()
+        elif "buraco" in topic_hint.lower() and "branco" in topic_hint.lower():
+            return self._simulate_white_holes_content()
+        else:
+            return self._simulate_default_content()
+    
+    def _simulate_black_holes_content(self) -> str:
+        return """
+# Buracos Negros: Fenômenos Extremos do Universo
+
+## Introdução
+
+Os buracos negros representam alguns dos objetos mais fascinantes e extremos do universo conhecido. Essas regiões do espaço-tempo onde a gravidade é tão intensa que nem mesmo a luz pode escapar, desafiam nossa compreensão da física e continuam a revelar segredos fundamentais sobre a natureza do cosmos.
+
+## Fundamentação Teórica
+
+### Origem e Formação
+
+Os buracos negros se formam quando uma estrela massiva (pelo menos 20-25 vezes a massa do Sol) chega ao fim de sua vida. Durante o colapso gravitacional, a matéria é comprimida em um ponto de densidade infinita chamado singularidade, cercado pelo horizonte de eventos - a fronteira além da qual nada pode escapar.
+
+### Propriedades Fundamentais
+
+Um buraco negro é caracterizado por apenas três propriedades:
+- **Massa**: Determina o tamanho do horizonte de eventos
+- **Carga elétrica**: Geralmente neutra devido à neutralização
+- **Momento angular**: Rotação do buraco negro (spin)
+
+### Tipos de Buracos Negros
+
+1. **Buracos Negros Estelares**: Formados pelo colapso de estrelas massivas (3-20 massas solares)
+2. **Buracos Negros Intermediários**: Massa entre 100-100.000 massas solares
+3. **Buracos Negros Supermassivos**: Milhões a bilhões de massas solares, encontrados no centro das galáxias
+
+## Descobertas e Evidências Observacionais
+
+### Detecção por Ondas Gravitacionais
+
+Em 2015, o LIGO detectou pela primeira vez ondas gravitacionais produzidas pela fusão de dois buracos negros, confirmando previsões da relatividade geral de Einstein e abrindo uma nova era na astronomia.
+
+### Primeira Imagem de um Buraco Negro
+
+Em 2019, o Event Horizon Telescope capturou a primeira imagem direta de um buraco negro - o M87* na galáxia M87, revelando a sombra do horizonte de eventos cercada por matéria superaquecida.
+
+### Sagittarius A*
+
+Em 2022, foi divulgada a imagem do buraco negro supermassivo no centro da nossa galáxia, Sagittarius A*, com massa equivalente a 4 milhões de sóis.
+
+## Fenômenos Associados
+
+### Radiação Hawking
+
+Stephen Hawking previu que buracos negros emitem radiação devido a efeitos quânticos próximos ao horizonte de eventos, levando à sua eventual evaporação. Quanto menor o buraco negro, mais rápida é a evaporação.
+
+### Discos de Acreção
+
+Matéria que cai em direção ao buraco negro forma um disco de acreção superaquecido, emitindo radiação intensa em várias frequências, tornando os buracos negros alguns dos objetos mais brilhantes do universo.
+
+### Jets Relativísticos
+
+Buracos negros em rotação podem acelerar partículas a velocidades próximas à da luz, criando jatos que se estendem por milhares de anos-luz.
+
+## Implicações Cosmológicas
+
+### Papel na Evolução Galáctica
+
+Buracos negros supermassivos influenciam a formação e evolução das galáxias, regulando a formação estelar através de feedback energético.
+
+### Paradoxos e Questões Fundamentais
+
+- **Paradoxo da Informação**: O que acontece com a informação que cai em um buraco negro?
+- **Singularidades**: Pontos onde as leis da física conhecidas falham
+- **Conexão com a Mecânica Quântica**: Interface entre relatividade geral e física quântica
+
+## Pesquisas Atuais e Futuras
+
+### Próximas Missões
+
+- **Event Horizon Telescope**: Expansão da rede para imagens mais detalhadas
+- **LISA**: Detector espacial de ondas gravitacionais
+- **Telescópio James Webb**: Observações no infravermelho de buracos negros primordiais
+
+### Questões em Aberto
+
+1. Como se formaram os primeiros buracos negros supermassivos?
+2. Qual é a natureza exata das singularidades?
+3. Como resolver o paradoxo da informação?
+4. Existem buracos negros primordiais formados no universo primitivo?
+
+## Conclusão
+
+Os buracos negros continuam a ser laboratórios naturais únicos para testar nossa compreensão da física fundamental. Desde a confirmação de sua existência até as recentes imagens diretas, esses objetos extremos revelam aspectos profundos sobre a natureza do espaço, tempo e gravidade.
+
+As descobertas futuras prometem não apenas expandir nosso conhecimento sobre buracos negros, mas também revolucionar nossa compreensão do universo como um todo, potencialmente levando a novas teorias que unifiquem a relatividade geral com a mecânica quântica.
+
+**Referências**: Einstein (1915), Schwarzschild (1916), Hawking (1974), LIGO Scientific Collaboration (2015), Event Horizon Telescope Collaboration (2019, 2022)
+"""
+
+    def _simulate_white_holes_content(self) -> str:
+        return """
+# Buracos Brancos: O Reverso Teórico dos Buracos Negros
+
+## Introdução
+
+Os buracos brancos representam uma das mais fascinantes e controversas previsões teóricas da relatividade geral. Enquanto os buracos negros absorvem tudo que se aproxima, os buracos brancos são conceitualmente o oposto: regiões do espaço-tempo que expelem matéria e energia, sem permitir que nada entre.
+
+## Fundamentação Teórica
+
+### Origem Matemática
+
+Os buracos brancos emergem naturalmente das equações de Einstein quando consideramos a reversibilidade temporal das soluções. A métrica de Schwarzschild, que descreve buracos negros, possui uma solução "espelhada" que corresponde aos buracos brancos.
+
+### Propriedades Fundamentais
+
+Um buraco branco teórico possui:
+- **Horizonte de eventos**: Fronteira que permite apenas saída, nunca entrada
+- **Singularidade**: Ponto de densidade infinita no centro
+- **Reversão temporal**: Comportamento oposto ao buraco negro
+
+### Relação com Buracos Negros
+
+Na teoria, buracos brancos e negros podem estar conectados através de "pontes Einstein-Rosen" (buracos de minhoca), formando estruturas chamadas de buracos negros eternos.
+
+## Desafios Teóricos
+
+### Violação da Segunda Lei da Termodinâmica
+
+Buracos brancos parecem violar o princípio de que a entropia deve sempre aumentar, pois expelem matéria organizada sem causa aparente.
+
+### Instabilidade Gravitacional
+
+Análises teóricas sugerem que buracos brancos seriam extremamente instáveis. Qualquer perturbação mínima causaria seu colapso imediato em um buraco negro.
+
+### Problema da Causalidade
+
+A existência de buracos brancos levanta questões sobre causalidade e determinismo, pois eventos futuros (expulsão de matéria) não teriam causa no passado.
+
+## Possíveis Manifestações Observacionais
+
+### Big Bang como Buraco Branco
+
+Alguns cosmólogos especulam que o Big Bang poderia ter sido um buraco branco primordial, expelindo toda a matéria e energia do universo observável.
+
+### Gamma-Ray Bursts
+
+Explosões de raios gama extremamente energéticas foram propostas como possíveis assinaturas de buracos brancos, embora explicações convencionais sejam mais aceitas.
+
+### Quasares e Objetos Ativos
+
+Alguns fenômenos astrofísicos extremos foram hipoteticamente atribuídos a buracos brancos, mas evidências observacionais são inexistentes.
+
+## Modelos Alternativos
+
+### Estrelas de Planck
+
+Alguns teóricos propõem que o que interpretamos como buracos negros poderiam ser "estrelas de Planck" - objetos que se comportam como buracos brancos em escalas quânticas.
+
+### Cosmologia Cíclica
+
+Em modelos de universo cíclico, buracos brancos poderiam ser o mecanismo pelo qual um universo colapsado "ressurge" como um novo Big Bang.
+
+### Gravidade Quântica em Loop
+
+Esta teoria sugere que singularidades de buracos negros poderiam "saltar" para buracos brancos através de efeitos quânticos.
+
+## Evidências e Limitações
+
+### Ausência de Observações
+
+Até o momento, não há evidências observacionais convincentes da existência de buracos brancos no universo atual.
+
+### Argumentos Contra a Existência
+
+1. **Instabilidade**: Modelos mostram que buracos brancos colapsariam instantaneamente
+2. **Termodinâmica**: Violação aparente de leis fundamentais
+3. **Formação**: Nenhum mecanismo conhecido poderia criar buracos brancos
+
+### Limitações dos Modelos
+
+As soluções matemáticas que preveem buracos brancos assumem condições idealizadas que provavelmente não existem na natureza.
+
+## Implicações Filosóficas e Cosmológicas
+
+### Natureza do Tempo
+
+Buracos brancos desafiam nossa compreensão da direção do tempo e da causalidade, sugerindo que o tempo pode não ser tão linear quanto percebemos.
+
+### Origem do Universo
+
+Se o Big Bang foi um buraco branco, isso poderia explicar por que o universo começou em um estado de baixa entropia.
+
+### Multiverso
+
+Buracos brancos poderiam ser portais entre diferentes regiões do espaço-tempo ou até mesmo universos paralelos.
+
+## Pesquisas Atuais
+
+### Simulações Numéricas
+
+Físicos usam supercomputadores para modelar a evolução de buracos brancos em condições realistas, geralmente confirmando sua instabilidade.
+
+### Teorias Quânticas da Gravidade
+
+Pesquisadores investigam se efeitos quânticos poderiam estabilizar buracos brancos ou criar condições para sua formação.
+
+### Cosmologia Observacional
+
+Astrônomos buscam assinaturas observacionais que poderiam distinguir fenômenos de buracos brancos de explicações convencionais.
+
+## Conclusão
+
+Embora buracos brancos sejam previsões matemáticas elegantes da relatividade geral, sua existência física permanece altamente questionável. Os desafios teóricos - instabilidade, violação termodinâmica e problemas causais - sugerem que são mais curiosidades matemáticas do que realidades físicas.
+
+No entanto, o estudo de buracos brancos continua valioso para nossa compreensão da relatividade geral, cosmologia e natureza fundamental do espaço-tempo. Eles servem como "experimentos mentais" que testam os limites de nossas teorias físicas e podem eventualmente levar a descobertas sobre a natureza do universo.
+
+A busca por buracos brancos, mesmo que infrutífera, aprofunda nossa compreensão dos buracos negros reais e dos fenômenos extremos que governam o cosmos.
+
+**Referências**: Novikov (1964), Hawking & Ellis (1973), Penrose (2004), Rovelli & Vidotto (2014)
+"""
+
+    def _simulate_default_content(self) -> str:
         return """
 # Sistemas Multiagente para Geração Automatizada de Conteúdo
 
@@ -291,7 +552,7 @@ Os resultados preliminares indicam que a abordagem multiagente representa um ava
         elif "pesquisador" in prompt.lower() or "pesquisa" in prompt.lower():
             return self._simulate_researcher()
         elif "redator" in prompt.lower() or "escrever" in prompt.lower():
-            return self._simulate_writer()
+            return self._simulate_writer(prompt)  # Pass prompt to detect topic
         elif "crítico" in prompt.lower() or "avaliar" in prompt.lower():
             return self._simulate_critic()
         else:

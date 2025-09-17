@@ -1,0 +1,183 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Revisão Final{% endblock %}
+
+{% block wizard_description %}
+Revise todas as informações antes de criar o projeto.
+{% endblock %}
+
+{% block wizard_content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Detalhes do Projeto</h5>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">1. Informações Básicas</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Título do Projeto</dt>
+                <dd class="col-sm-9">{{ form.project_title.data }}</dd>
+                
+                <dt class="col-sm-3">Domínio de Conhecimento</dt>
+                <dd class="col-sm-9">{{ form.knowledge_domain.data }}</dd>
+                
+                <dt class="col-sm-3">Público-Alvo</dt>
+                <dd class="col-sm-9">{{ form.target_audience.data }}</dd>
+                
+                <dt class="col-sm-3">Nível Técnico</dt>
+                <dd class="col-sm-9">
+                    {% if form.technical_level.data == 'iniciante' %}Iniciante
+                    {% elif form.technical_level.data == 'intermediario' %}Intermediário
+                    {% elif form.technical_level.data == 'avancado' %}Avançado
+                    {% else %}Acadêmico
+                    {% endif %}
+                </dd>
+                
+                {% if form.background_info.data %}
+                <dt class="col-sm-3">Contexto Adicional</dt>
+                <dd class="col-sm-9">{{ form.background_info.data }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">2. Objetivos</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Propósito Principal</dt>
+                <dd class="col-sm-9">{{ form.main_purpose.data }}</dd>
+                
+                {% if form.learning_objectives.data %}
+                <dt class="col-sm-3">Objetivos de Aprendizado</dt>
+                <dd class="col-sm-9">{{ form.learning_objectives.data }}</dd>
+                {% endif %}
+                
+                {% if form.call_to_action.data %}
+                <dt class="col-sm-3">Chamada para Ação</dt>
+                <dd class="col-sm-9">{{ form.call_to_action.data }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">3. Escopo</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Número de Palavras</dt>
+                <dd class="col-sm-9">{{ form.word_count.data }} palavras</dd>
+                
+                <dt class="col-sm-3">Nível de Profundidade</dt>
+                <dd class="col-sm-9">
+                    {% if form.depth_level.data == '1' %}Básico (Visão Geral)
+                    {% elif form.depth_level.data == '2' %}Intermediário (Detalhado)
+                    {% elif form.depth_level.data == '3' %}Avançado (Técnico)
+                    {% elif form.depth_level.data == '4' %}Especializado (Acadêmico)
+                    {% else %}Especializado (Pesquisa)
+                    {% endif %}
+                </dd>
+                
+                {% if form.must_include.data %}
+                <dt class="col-sm-3">Deve Incluir</dt>
+                <dd class="col-sm-9">{{ form.must_include.data|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form.must_exclude.data %}
+                <dt class="col-sm-3">Deve Excluir</dt>
+                <dd class="col-sm-9">{{ form.must_exclude.data|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">4. Fontes e Referências</h6>
+            <dl class="row mb-0">
+                {% if form.preferred_sources.data %}
+                <dt class="col-sm-3">Fontes Preferenciais</dt>
+                <dd class="col-sm-9">{{ form.preferred_sources.data|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form.key_authors.data %}
+                <dt class="col-sm-3">Autores de Referência</dt>
+                <dd class="col-sm-9">{{ form.key_authors.data }}</dd>
+                {% endif %}
+                
+                {% if form.time_period.data %}
+                <dt class="col-sm-3">Período Temporal</dt>
+                <dd class="col-sm-9">{{ form.time_period.data }}</dd>
+                {% endif %}
+                
+                <dt class="col-sm-3">Citações Obrigatórias</dt>
+                <dd class="col-sm-9">{{ 'Sim' if form.citations_required.data else 'Não' }}</dd>
+                
+                <dt class="col-sm-3">Mínimo de Fontes</dt>
+                <dd class="col-sm-9">{{ form.min_sources.data }}</dd>
+            </dl>
+        </div>
+        
+        <div>
+            <h6 class="text-primary">5. Estilo e Formatação</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Tom de Escrita</dt>
+                <dd class="col-sm-9">
+                    {% if form.writing_tone.data == 'formal' %}Formal
+                    {% elif form.writing_tone.data == 'academico' %}Acadêmico
+                    {% elif form.writing_tone.data == 'conversacional' %}Conversacional
+                    {% elif form.writing_tone.data == 'persuasivo' %}Persuasivo
+                    {% else %}Informativo
+                    {% endif %}
+                </dd>
+                
+                <dt class="col-sm-3">Idioma</dt>
+                <dd class="col-sm-9">
+                    {% if form.language.data == 'pt-BR' %}Português (Brasil)
+                    {% elif form.language.data == 'pt-PT' %}Português (Portugal)
+                    {% else %}English (US)
+                    {% endif %}
+                </dd>
+                
+                {% if form.required_sections.data %}
+                <dt class="col-sm-3">Seções Obrigatórias</dt>
+                <dd class="col-sm-9">{{ form.required_sections.data|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form.formatting_guidelines.data %}
+                <dt class="col-sm-3">Diretrizes de Formatação</dt>
+                <dd class="col-sm-9">{{ form.formatting_guidelines.data|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+</div>
+
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="d-flex justify-content-between">
+        <button type="submit" name="back" value="1" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </button>
+        
+        <div>
+            <button type="submit" name="save_draft" value="1" class="btn btn-outline-primary me-2">
+                <i class="far fa-save me-2"></i>Salvar Rascunho
+            </button>
+            <button type="submit" name="submit" class="btn btn-primary">
+                <i class="fas fa-check me-2"></i>Criar Projeto
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    dt {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    dd {
+        margin-bottom: 1rem;
+    }
+    .text-primary {
+        color: #4e73df !important;
+    }
+</style>
+{% endblock %}

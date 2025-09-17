@@ -1,0 +1,95 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Objetivos do Conteúdo{% endblock %}
+
+{% block wizard_description %}
+Defina os objetivos e propósito principal do conteúdo que será gerado.
+{% endblock %}
+
+{% block wizard_content %}
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group mb-4">
+        {{ form.main_purpose.label(class="form-label") }}
+        {{ form.main_purpose(class="form-control" + (' is-invalid' if form.main_purpose.errors else ''), 
+                           rows="4",
+                           placeholder="Qual é o objetivo principal deste conteúdo? O que você espera alcançar?"
+                          ) }}
+        <div class="invalid-feedback">
+            {{ form.main_purpose.errors[0] if form.main_purpose.errors else 'Por favor, descreva o propósito principal.' }}
+        </div>
+        <small class="form-text text-muted">
+            Seja específico sobre o que você deseja que o conteúdo alcance.
+        </small>
+    </div>
+    
+    <div class="form-group mb-4">
+        {{ form.learning_objectives.label(class="form-label") }}
+        {{ form.learning_objectives(class="form-control" + (' is-invalid' if form.learning_objectives.errors else ''), 
+                                 rows="4",
+                                 placeholder="O que os leitores devem aprender com este conteúdo?"
+                                ) }}
+        <div class="invalid-feedback">
+            {{ form.learning_objectives.errors[0] if form.learning_objectives.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Liste os principais tópicos ou conceitos que devem ser cobertos.
+        </small>
+    </div>
+    
+    <div class="form-group">
+        {{ form.call_to_action.label(class="form-label") }}
+        {{ form.call_to_action(class="form-control" + (' is-invalid' if form.call_to_action.errors else ''), 
+                             placeholder="O que você gostaria que os leitores fizessem após a leitura?"
+                            ) }}
+        <div class="invalid-feedback">
+            {{ form.call_to_action.errors[0] if form.call_to_action.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Por exemplo: "Inscreva-se em nossa newsletter", "Baixe nosso guia gratuito", etc.
+        </small>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            <button type="submit" name="back" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div>
+            <button type="submit" name="next" class="btn btn-primary">
+                Próximo <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+            <button type="submit" name="save_draft" class="btn btn-outline-secondary ms-2">
+                <i class="far fa-save me-1"></i>Salvar Rascunho
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enable Bootstrap form validation
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

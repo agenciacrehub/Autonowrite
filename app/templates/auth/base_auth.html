@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="my-0">{% block auth_title %}{% endblock %}</h3>
+                </div>
+                <div class="card-body px-5 py-4">
+                    {% block auth_content %}{% endblock %}
+                </div>
+                <div class="card-footer text-center py-3">
+                    {% block auth_footer %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fc;
+    }
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .card-header {
+        border-bottom: none;
+    }
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .btn-primary {
+        padding: 0.5rem 2rem;
+        font-weight: 600;
+    }
+    .auth-links {
+        margin-top: 1.5rem;
+    }
+    .auth-links a {
+        color: #4e73df;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{# This block is defined to allow child templates to add custom JavaScript #}
+{% endblock %}

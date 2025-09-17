@@ -1,0 +1,140 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Escopo e Limitações{% endblock %}
+
+{% block wizard_description %}
+Defina o escopo do conteúdo e quaisquer limitações ou requisitos específicos.
+{% endblock %}
+
+{% block wizard_content %}
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="form-group">
+                {{ form.word_count.label(class="form-label") }}
+                <div class="input-group">
+                    {{ form.word_count(class="form-control" + (' is-invalid' if form.word_count.errors else ''), 
+                                    type="number",
+                                    min="100",
+                                    max="10000",
+                                    step="100") }}
+                    <span class="input-group-text">palavras</span>
+                    <div class="invalid-feedback">
+                        {{ form.word_count.errors[0] if form.word_count.errors }}
+                    </div>
+                </div>
+                <small class="form-text text-muted">
+                    Número aproximado de palavras para o conteúdo.
+                </small>
+            </div>
+            
+            <div class="form-group mb-4">
+                {{ form.depth_level.label(class="form-label") }}
+                {{ form.depth_level(class="form-select" + (' is-invalid' if form.depth_level.errors else '')) }}
+                <div class="invalid-feedback">
+                    {{ form.depth_level.errors[0] if form.depth_level.errors }}
+                </div>
+                <small class="form-text text-muted">
+                    O nível de detalhamento e profundidade do conteúdo.
+                </small>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-title">Guia de Níveis de Profundidade</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <strong>Básico:</strong> Visão geral do tópico, sem jargões técnicos.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Intermediário:</strong> Detalhes práticos com alguns conceitos técnicos explicados.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Avançado:</strong> Conteúdo técnico detalhado, para profissionais da área.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Acadêmico:</strong> Nível universitário, com teoria e referências.
+                        </li>
+                        <li>
+                            <strong>Pesquisa:</strong> Foco em pesquisas recentes e descobertas no campo.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-group mb-4">
+        {{ form.must_include.label(class="form-label") }}
+        {{ form.must_include(class="form-control" + (' is-invalid' if form.must_include.errors else ''), 
+                           rows="3",
+                           placeholder="Exemplos, estudos de caso, definições técnicas, etc."
+                          ) }}
+        <div class="invalid-feedback">
+            {{ form.must_include.errors[0] if form.must_include.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Itens que devem ser incluídos no conteúdo. Separe com vírgulas ou em linhas diferentes.
+        </small>
+    </div>
+    
+    <div class="form-group">
+        {{ form.must_exclude.label(class="form-label") }}
+        {{ form.must_exclude(class="form-control" + (' is-invalid' if form.must_exclude.errors else ''), 
+                           rows="3",
+                           placeholder="Tópicos que não devem ser abordados, termos técnicos complexos, etc."
+                          ) }}
+        <div class="invalid-feedback">
+            {{ form.must_exclude.errors[0] if form.must_exclude.errors }}
+        </div>
+        <small class="form-text text-muted">
+            Itens que não devem ser incluídos no conteúdo. Separe com vírgulas ou em linhas diferentes.
+        </small>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            <button type="submit" name="back" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </button>
+        </div>
+        <div>
+            <button type="submit" name="next" class="btn btn-primary">
+                Próximo <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+            <button type="submit" name="save_draft" class="btn btn-outline-secondary ms-2">
+                <i class="far fa-save me-1"></i>Salvar Rascunho
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enable Bootstrap form validation
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

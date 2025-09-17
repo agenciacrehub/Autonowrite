@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Importar Projeto - AutonoWrite{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{{ url_for('projects.list_projects') }}" class="text-decoration-none text-gray-800">
+                <i class="fas fa-arrow-left me-2"></i>Importar Projeto
+            </a>
+        </h1>
+        <div>
+            <a href="{{ url_for('projects.list_projects') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i> Cancelar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Importar Projeto</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-file-import fa-4x text-primary mb-3"></i>
+                        <h4>Importar um Projeto Existente</h4>
+                        <p class="text-muted">
+                            Selecione um arquivo de projeto (.zip) para importar para o AutonoWrite.
+                        </p>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <div class="file-upload-area">
+                                <div class="file-upload-message">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-gray-300 mb-3"></i>
+                                    <h5>Arraste e solte seu arquivo aqui</h5>
+                                    <p class="text-muted mb-2">ou</p>
+                                    <div class="btn btn-primary btn-file">
+                                        Selecione um arquivo
+                                        {{ form.project_file(id="fileInput", class="d-none") }}
+                                    </div>
+                                    <div class="form-text mt-2">
+                                        Tamanho máximo: 50MB. Formatos suportados: .zip
+                                    </div>
+                                    <div id="fileInfo" class="mt-3 d-none">
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fas fa-file-archive me-2"></i>
+                                            <span id="fileName"></span>
+                                            <span id="fileSize" class="text-muted ms-2"></span>
+                                            <button type="button" class="btn-close float-end" id="clearFile" aria-label="Remover"></button>
+                                        </div>
+                                    </div>
+                                    {% if form.project_file.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.project_file.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Opções de Importação</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-3">
+                                    {{ form.import_executions(class="form-check-input", id="importExecutions") }}
+                                    {{ form.import_executions.label(class="form-check-label") }}
+                                    <div class="form-text">
+                                        Incluir histórico de execuções na importação
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    {{ form.project_name.label(class="form-label") }}
+                                    {{ form.project_name(class="form-control" + (' is-invalid' if form.project_name.errors else ''), 
+                                                     placeholder="Nome do novo projeto") }}
+                                    <div class="form-text">
+                                        Deixe em branco para usar o nome original do projeto
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        {{ form.project_name.errors[0] if form.project_name.errors }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('projects.list_projects') }}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                <i class="fas fa-file-import me-1"></i> Importar Projeto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Import Instructions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Como Exportar um Projeto</h6>
+                </div>
+                <div class="card-body">
+                    <p>Para importar um projeto, primeiro você precisa exportá-lo de outra instância do AutonoWrite:</p>
+                    
+                    <ol class="mb-4">
+                        <li class="mb-2">Acesse o projeto que deseja exportar</li>
+                        <li class="mb-2">Vá para <strong>Configurações</strong> &rarr; <strong>Exportar Projeto</strong></li>
+                        <li class="mb-2">Selecione o formato <strong>ZIP (completo)</strong> para incluir todos os dados</li>
+                        <li>Baixe o arquivo .zip gerado</li>
+                    </ol>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i> Dicas de Importação</h6>
+                        <ul class="mb-0">
+                            <li>Certifique-se de que o arquivo não está corrompido</li>
+                            <li>Verifique se você tem permissão para importar este projeto</li>
+                            <li>Projetos grandes podem levar alguns minutos para serem importados</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const clearFile = document.getElementById('clearFile');
+    const submitBtn = document.getElementById('submitBtn');
+    const dropArea = document.querySelector('.file-upload-area');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        updateFileInfo(e.target.files[0]);
+    });
+    
+    // Handle drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('bg-light');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('bg-light');
+    }
+    
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        fileInput.files = dt.files;
+        updateFileInfo(file);
+    }
+    
+    // Clear file selection
+    clearFile.addEventListener('click', function(e) {
+        e.preventDefault();
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        submitBtn.disabled = true;
+    });
+    
+    // Update file info display
+    function updateFileInfo(file) {
+        if (file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('d-none');
+            submitBtn.disabled = false;
+        } else {
+            fileInfo.classList.add('d-none');
+            submitBtn.disabled = true;
+        }
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>
+
+<style>
+.file-upload-area {
+    border: 2px dashed #d1d3e2;
+    border-radius: 0.35rem;
+    padding: 2.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background-color: #f8f9fc;
+}
+
+.file-upload-area:hover {
+    border-color: #b7b9cc;
+}
+
+.file-upload-area.highlight {
+    background-color: #f1f3f9;
+    border-color: #4e73df;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.file-upload-message {
+    pointer-events: none;
+}
+
+.file-upload-area.dragover {
+    background-color: #f1f3f9;
+    border-color: #4e73df;
+}
+
+.file-upload-area.dragover .file-upload-message {
+    transform: translateY(-5px);
+}
+
+.was-validated .form-control:invalid, .form-control.is-invalid {
+    border-color: #e74a3b;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e74a3b'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e74a3b' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #e74a3b;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-control:invalid ~ .invalid-tooltip,
+.form-control.is-invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-tooltip {
+    display: block;
+}
+
+.form-switch .form-check-input {
+    width: 2.5em;
+    margin-left: -2.5em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
+    background-position: left center;
+    border-radius: 2em;
+    transition: background-position 0.15s ease-in-out;
+}
+
+.form-switch .form-check-input:checked {
+    background-position: right center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+</style>
+{% endblock %}

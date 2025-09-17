@@ -1,0 +1,131 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Contexto e Domínio{% endblock %}
+
+{% block wizard_description %}
+Informações básicas sobre o conteúdo que você deseja criar.
+{% endblock %}
+
+{% block wizard_content %}
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    <input type="hidden" name="step" value="{{ step }}">
+    
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <div class="form-group mb-3">
+                {{ form.project_title.label(class="form-label") }}
+                {{ form.project_title(class="form-control" + (" is-invalid" if form.project_title.errors else ""), readonly=prompt_completed) }}
+                {% if form.project_title.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.project_title.errors[0] }}
+                    </div>
+                {% endif %}
+                <small class="form-text text-muted">Um título descritivo para o seu projeto. Mínimo de 5 caracteres.</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                {{ form.knowledge_domain.label(class="form-label") }}
+                {{ form.knowledge_domain(class="form-control" + (' is-invalid' if form.knowledge_domain.errors else ''), 
+                                     placeholder="Ex: Tecnologia, Saúde, Educação", readonly=prompt_completed) }}
+                <div class="invalid-feedback">
+                    {{ form.knowledge_domain.errors[0] if form.knowledge_domain.errors else 'Por favor, informe o domínio de conhecimento.' }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                {{ form.target_audience.label(class="form-label") }}
+                {{ form.target_audience(class="form-control" + (' is-invalid' if form.target_audience.errors else ''), 
+                                     placeholder="Ex: Estudantes Universitários", readonly=prompt_completed) }}
+                <div class="invalid-feedback">
+                    {{ form.target_audience.errors[0] if form.target_audience.errors else 'Por favor, informe o público-alvo.' }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="form-group">
+                {{ form.technical_level.label(class="form-label") }}
+                {{ form.technical_level(class="form-select" + (' is-invalid' if form.technical_level.errors else ''), disabled=prompt_completed) }}
+                <div class="invalid-feedback">
+                    {{ form.technical_level.errors[0] if form.technical_level.errors else 'Por favor, selecione o nível técnico.' }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="form-group">
+                {{ form.background_info.label(class="form-label") }}
+                {{ form.background_info(class="form-control" + (' is-invalid' if form.background_info.errors else ''), 
+                                     rows="4",
+                                     placeholder="Forneça informações adicionais que possam ser úteis...", readonly=prompt_completed) }}
+                <div class="invalid-feedback">
+                    {{ form.background_info.errors[0] if form.background_info.errors }}
+                </div>
+                <small class="form-text text-muted">
+                    Contexto adicional, pré-requisitos ou informações relevantes sobre o tópico.
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation buttons -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            {% if prompt_completed %}
+                <a href="{{ url_for('projects.view_project', project_id=project_id) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar ao Projeto
+                </a>
+            {% else %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+            {% endif %}
+        </div>
+        {% if not prompt_completed %}
+        <div>
+            <button type="submit" name="next" class="btn btn-primary">
+                Próximo <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+            <button type="submit" name="save_draft" class="btn btn-outline-secondary ms-2">
+                <i class="far fa-save me-1"></i>Salvar Rascunho
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enable Bootstrap form validation
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

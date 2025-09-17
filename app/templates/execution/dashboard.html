@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <a href="{{ url_for('projects.view_project', project_id=project.id) }}" class="text-decoration-none">
+                <i class="fas fa-arrow-left me-2"></i>{{ project.title }}
+            </a>
+        </h1>
+        <div>
+            <button id="refreshBtn" class="btn btn-sm btn-outline-primary me-2">
+                <i class="fas fa-sync-alt me-1"></i> Atualizar
+            </button>
+            {% if execution and execution.status.name in ['PENDING', 'RUNNING'] %}
+            <button id="cancelExecutionBtn" class="btn btn-sm btn-outline-danger" data-execution-id="{{ execution.id }}">
+                <i class="fas fa-times-circle me-1"></i> Cancelar
+            </button>
+            {% else %}
+            <button id="startExecutionBtn" class="btn btn-sm btn-primary" data-project-id="{{ project.id }}">
+                <i class="fas fa-play me-1"></i> Iniciar Execução
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Progresso</h6>
+                    <span id="executionStatus" class="badge {% if execution %}{% if execution.status.name == 'COMPLETED' %}bg-success{% elif execution.status.name == 'FAILED' %}bg-danger{% elif execution.status.name == 'RUNNING' %}bg-primary{% else %}bg-secondary{% endif %}{% else %}bg-secondary{% endif %}">
+                        {{ execution.status.value|title if execution else 'Nenhuma execução' }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-4" style="height: 20px;">
+                        <div id="executionProgress" class="progress-bar progress-bar-striped {% if execution and execution.status.name == 'RUNNING' %}progress-bar-animated{% endif %}" 
+                             style="width: {{ ((execution.progress * 100) if execution and execution.progress else 0)|int }}%" 
+                             aria-valuenow="{{ ((execution.progress * 100) if execution and execution.progress else 0)|int }}">
+                            {{ ((execution.progress * 100) if execution and execution.progress else 0)|int }}%
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="text-muted small">Iniciado em</div>
+                            <div id="startedAt">{{ execution.started_at.strftime('%d/%m/%Y %H:%M') if execution else '-' }}</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-muted small">Tempo decorrido</div>
+                            <div id="elapsedTime">-</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="text-muted small">Atualizado em</div>
+                            <div id="lastUpdated">{{ execution.completed_at.strftime('%d/%m/%Y %H:%M') if execution and execution.completed_at else execution.started_at.strftime('%d/%m/%Y %H:%M') if execution and execution.started_at else '-' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Logs</h6>
+                </div>
+                <div id="executionLogs" class="card-body p-3" style="height: 300px; overflow-y: auto; background-color: #f8f9fc; font-family: monospace;">
+                    {% if execution and execution.logs %}
+                        {% for log in execution.logs %}
+                        <div class="mb-1">
+                            <span class="text-muted">[{{ log.timestamp.strftime('%H:%M:%S') }}]</span>
+                            <span class="badge bg-{{ 'success' if log.level.name == 'INFO' else 'warning' if log.level.name == 'WARNING' else 'danger' }} text-white">
+                                {{ log.level.name }}
+                            </span>
+                            {{ log.message }}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted text-center py-5">Nenhum log disponível</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalhes</h6>
+                </div>
+                <div class="card-body">
+                    {% if execution %}
+                        <dl class="mb-0">
+                            <dt>ID</dt>
+                            <dd><code>#{{ execution.id }}</code></dd>
+                            
+                            <dt>Status</dt>
+                            <dd>
+                                <span class="badge {% if execution.status.name == 'COMPLETED' %}bg-success{% elif execution.status.name == 'FAILED' %}bg-danger{% elif execution.status.name == 'RUNNING' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ execution.status.value|title }}
+                                </span>
+                            </dd>
+                            
+                            <dt>Progresso</dt>
+                            <dd>{{ ((execution.progress * 100) if execution and execution.progress else 0)|int }}%</dd>
+                            
+                            <dt>Iniciado em</dt>
+                            <dd>{{ execution.started_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                            
+                            {% if execution.completed_at %}
+                            <dt>Concluído em</dt>
+                            <dd>{{ execution.completed_at.strftime('%d/%m/%Y %H:%M') }}</dd>
+                            {% endif %}
+                            
+                            <dt>Logs</dt>
+                            <dd>{{ execution.logs|length }} entradas</dd>
+                        </dl>
+                    {% else %}
+                        <p class="text-muted mb-0">Nenhuma execução encontrada.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ações</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('execution.project_executions', project_id=project.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i> Todas as Execuções
+                        </a>
+                        <button id="downloadLogsBtn" class="btn btn-outline-secondary" {% if not execution or not execution.logs|length %}disabled{% endif %}>
+                            <i class="fas fa-download me-1"></i> Baixar Logs
+                        </button>
+                        <button id="viewResultsBtn" class="btn btn-outline-success" {% if not execution or execution.status.name != 'COMPLETED' %}disabled{% endif %}>
+                            <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let refreshInterval;
+    const executionId = {{ execution.id if execution else 'null' }};
+    let lastLogId = 0;
+
+    // Format elapsed time
+    function formatElapsedTime(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return [h > 0 ? h : null, m, s].filter(Boolean).map(x => x.toString().padStart(2, '0')).join(':');
+    }
+
+    // Update execution status
+    function updateExecutionStatus() {
+        if (!executionId) return;
+        
+        fetch(`/execution/${executionId}/status`)
+            .then(response => response.json())
+            .then(data => {
+                // Update progress bar
+                const progress = Math.round(data.progress * 100);
+                $('#executionProgress')
+                    .css('width', `${progress}%`)
+                    .attr('aria-valuenow', progress)
+                    .text(`${progress}%`);
+                
+                // Update status badge
+                const statusBadge = $('#executionStatus');
+                statusBadge.removeClass('bg-success bg-danger bg-primary bg-secondary');
+                
+                if (data.status === 'completed') statusBadge.addClass('bg-success');
+                else if (data.status === 'failed') statusBadge.addClass('bg-danger');
+                else if (data.status === 'running') statusBadge.addClass('bg-primary');
+                else statusBadge.addClass('bg-secondary');
+                
+                statusBadge.text(data.status.charAt(0).toUpperCase() + data.status.slice(1));
+                
+                // Update times
+                if (data.started_at) {
+                    const startedAt = new Date(data.started_at);
+                    $('#startedAt').text(startedAt.toLocaleString());
+                    
+                    // Update elapsed time
+                    const now = new Date();
+                    const elapsed = Math.floor((now - startedAt) / 1000);
+                    $('#elapsedTime').text(formatElapsedTime(elapsed));
+                }
+                
+                if (data.completed_at) {
+                    $('#lastUpdated').text(new Date(data.completed_at).toLocaleString());
+                } else {
+                    $('#lastUpdated').text(new Date().toLocaleString());
+                }
+                
+                // Update button states
+                if (['completed', 'failed', 'cancelled'].includes(data.status)) {
+                    clearInterval(refreshInterval);
+                    $('#cancelExecutionBtn').prop('disabled', true);
+                    $('#startExecutionBtn').prop('disabled', false);
+                    $('#viewResultsBtn').prop('disabled', data.status !== 'completed');
+                }
+            })
+            .catch(error => console.error('Error updating status:', error));
+    }
+    
+    // Fetch new logs
+    function fetchNewLogs() {
+        if (!executionId) return;
+        
+        fetch(`/execution/${executionId}/logs?after=${lastLogId}`)
+            .then(response => response.json())
+            .then(logs => {
+                if (logs.length > 0) {
+                    const logsContainer = $('#executionLogs');
+                    logs.forEach(log => {
+                        const logElement = `
+                            <div class="mb-1">
+                                <span class="text-muted">[${new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                <span class="badge bg-${log.level === 'INFO' ? 'success' : log.level === 'WARNING' ? 'warning' : 'danger'} text-white">
+                                    ${log.level}
+                                </span>
+                                ${log.message}
+                            </div>
+                        `;
+                        logsContainer.append(logElement);
+                        lastLogId = Math.max(lastLogId, log.id);
+                    });
+                    logsContainer.scrollTop(logsContainer[0].scrollHeight);
+                }
+            })
+            .catch(error => console.error('Error fetching logs:', error));
+    }
+    
+    // Start/Stop execution
+    $('#startExecutionBtn').click(function() {
+        fetch(`/execution/project/{{ project.id }}/execute`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.reload();
+                } else {
+                    alert('Erro ao iniciar execução: ' + data.message);
+                }
+            });
+    });
+    
+    $('#cancelExecutionBtn').click(function() {
+        if (confirm('Tem certeza que deseja cancelar esta execução?')) {
+            fetch(`/execution/${executionId}/cancel`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload();
+                    } else {
+                        alert('Erro ao cancelar execução: ' + data.message);
+                    }
+                });
+        }
+    });
+    
+    // Manual refresh
+    $('#refreshBtn').click(function() {
+        updateExecutionStatus();
+        fetchNewLogs();
+    });
+    
+    // Download logs
+    $('#downloadLogsBtn').click(function() {
+        if (executionId) {
+            window.location.href = `/execution/${executionId}/logs/download`;
+        }
+    });
+    
+    // View results
+    $('#viewResultsBtn').click(function() {
+        window.location.href = `/project/${ {{ project.id }} }/results`;
+    });
+    
+    // Start auto-refresh if execution is running
+    {% if execution and execution.status.name in ['PENDING', 'RUNNING'] %}
+    refreshInterval = setInterval(function() {
+        updateExecutionStatus();
+        fetchNewLogs();
+    }, 5000);
+    {% endif %}
+    
+    // Initial load
+    updateExecutionStatus();
+});
+</script>
+
+<style>
+#executionLogs {
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+#executionLogs .badge {
+    font-size: 0.7rem;
+    padding: 0.2em 0.4em;
+}
+
+.progress {
+    height: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

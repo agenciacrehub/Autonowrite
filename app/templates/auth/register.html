@@ -1,0 +1,157 @@
+{% extends "auth/base_auth.html" %}
+
+{% block auth_title %}Criar uma conta{% endblock %}
+
+{% block auth_content %}
+<form method="POST" action="{{ url_for('auth.register') }}" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group mb-3">
+        {{ form.username.label(class="form-label") }}
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+            {{ form.username(class="form-control" + (' is-invalid' if form.username.errors else ''), placeholder="Nome de usuário") }}
+            {% if form.username.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.username.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <small class="form-text text-muted">De 4 a 20 caracteres. Apenas letras, números e _ são permitidos.</small>
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form.email.label(class="form-label") }}
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            {{ form.email(class="form-control" + (' is-invalid' if form.email.errors else ''), placeholder="seu@email.com") }}
+            {% if form.email.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form.password.label(class="form-label") }}
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            {{ form.password(class="form-control" + (' is-invalid' if form.password.errors else ''), placeholder="Crie uma senha") }}
+            <button class="btn btn-outline-secondary password-toggle" type="button">
+                <i class="fas fa-eye"></i>
+            </button>
+            {% if form.password.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <small class="form-text text-muted">Mínimo de 6 caracteres.</small>
+    </div>
+    
+    <div class="form-group mb-4">
+        {{ form.confirm_password.label(class="form-label") }}
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+            {{ form.confirm_password(class="form-control" + (' is-invalid' if form.confirm_password.errors else ''), placeholder="Confirme sua senha") }}
+            <button class="btn btn-outline-secondary password-toggle" type="button">
+                <i class="fas fa-eye"></i>
+            </button>
+            {% if form.confirm_password.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.confirm_password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="d-grid">
+        {{ form.submit(class="btn btn-primary btn-lg") }}
+    </div>
+    
+    <div class="terms-and-conditions mt-3 text-center">
+        <small class="text-muted">
+            Ao se registrar, você concorda com nossos 
+            <a href="#" class="text-decoration-none">Termos de Serviço</a> e 
+            <a href="#" class="text-decoration-none">Política de Privacidade</a>.
+        </small>
+    </div>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<div class="text-center py-3">
+    <p class="mb-0">Já tem uma conta? 
+        <a href="{{ url_for('auth.login') }}" class="fw-bold">Faça login</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script>
+// Toggle password visibility
+const passwordToggles = document.querySelectorAll('.password-toggle');
+passwordToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
+
+// Password strength indicator
+const passwordInput = document.querySelector('input[name="password"]');
+if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const strengthMeter = document.getElementById('password-strength');
+        
+        if (!strengthMeter) return;
+        
+        // Reset classes
+        strengthMeter.className = 'progress-bar';
+        
+        // Calculate password strength (simple example)
+        let strength = 0;
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[a-z]+/)) strength += 25;
+        if (password.match(/[A-Z]+/)) strength += 25;
+        if (password.match(/[0-9]+/)) strength += 25;
+        
+        // Update progress bar
+        strengthMeter.style.width = strength + '%';
+        
+        // Update color based on strength
+        if (strength < 50) {
+            strengthMeter.classList.add('bg-danger');
+            strengthMeter.textContent = 'Fraca';
+        } else if (strength < 75) {
+            strengthMeter.classList.add('bg-warning');
+            strengthMeter.textContent = 'Média';
+        } else {
+            strengthMeter.classList.add('bg-success');
+            strengthMeter.textContent = 'Forte';
+        }
+    });
+}
+</script>
+{% endblock %}

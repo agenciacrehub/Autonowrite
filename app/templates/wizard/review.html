@@ -1,0 +1,188 @@
+{% extends "wizard/base_wizard.html" %}
+
+{% block wizard_title %}Revisão Final{% endblock %}
+
+{% block wizard_description %}
+Revise todas as informações antes de criar o projeto.
+{% endblock %}
+
+{% block wizard_content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Detalhes do Projeto</h5>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">1. Informações Básicas</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Título do Projeto</dt>
+                <dd class="col-sm-9">{{ form_data.get('project_title', 'Não informado') }}</dd>
+                
+                <dt class="col-sm-3">Domínio de Conhecimento</dt>
+                <dd class="col-sm-9">{{ form_data.get('knowledge_domain', 'Não informado') }}</dd>
+                
+                <dt class="col-sm-3">Público-Alvo</dt>
+                <dd class="col-sm-9">{{ form_data.get('target_audience', 'Não informado') }}</dd>
+                
+                <dt class="col-sm-3">Nível Técnico</dt>
+                <dd class="col-sm-9">
+                    {% if form_data.get('technical_level') == 'iniciante' %}Iniciante
+                    {% elif form_data.get('technical_level') == 'intermediario' %}Intermediário
+                    {% elif form_data.get('technical_level') == 'avancado' %}Avançado
+                    {% elif form_data.get('technical_level') == 'academico' %}Acadêmico
+                    {% else %}Não informado
+                    {% endif %}
+                </dd>
+                
+                {% if form_data.get('background_info') %}
+                <dt class="col-sm-3">Contexto Adicional</dt>
+                <dd class="col-sm-9">{{ form_data.get('background_info') }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">2. Objetivos</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Propósito Principal</dt>
+                <dd class="col-sm-9">{{ form_data.get('main_purpose', 'Não informado') }}</dd>
+                
+                {% if form_data.get('learning_objectives') %}
+                <dt class="col-sm-3">Objetivos de Aprendizado</dt>
+                <dd class="col-sm-9">{{ form_data.get('learning_objectives') }}</dd>
+                {% endif %}
+                
+                {% if form_data.get('call_to_action') %}
+                <dt class="col-sm-3">Chamada para Ação</dt>
+                <dd class="col-sm-9">{{ form_data.get('call_to_action') }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">3. Escopo</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Número de Palavras</dt>
+                <dd class="col-sm-9">{{ form_data.get('word_count', 1000) }} palavras</dd>
+                
+                <dt class="col-sm-3">Nível de Profundidade</dt>
+                <dd class="col-sm-9">
+                    {% if form_data.get('depth_level') == '1' %}Básico (Visão Geral)
+                    {% elif form_data.get('depth_level') == '2' %}Intermediário (Detalhado)
+                    {% elif form_data.get('depth_level') == '3' %}Avançado (Técnico)
+                    {% elif form_data.get('depth_level') == '4' %}Especializado (Acadêmico)
+                    {% elif form_data.get('depth_level') == '5' %}Especializado (Pesquisa)
+                    {% else %}Intermediário (Detalhado)
+                    {% endif %}
+                </dd>
+                
+                {% if form_data.get('must_include') %}
+                <dt class="col-sm-3">Deve Incluir</dt>
+                <dd class="col-sm-9">{{ form_data.get('must_include')|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form_data.get('must_exclude') %}
+                <dt class="col-sm-3">Deve Excluir</dt>
+                <dd class="col-sm-9">{{ form_data.get('must_exclude')|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="mb-4">
+            <h6 class="text-primary">4. Fontes e Referências</h6>
+            <dl class="row mb-0">
+                {% if form_data.get('preferred_sources') %}
+                <dt class="col-sm-3">Fontes Preferenciais</dt>
+                <dd class="col-sm-9">{{ form_data.get('preferred_sources')|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form_data.get('key_authors') %}
+                <dt class="col-sm-3">Autores de Referência</dt>
+                <dd class="col-sm-9">{{ form_data.get('key_authors') }}</dd>
+                {% endif %}
+                
+                {% if form_data.get('time_period') %}
+                <dt class="col-sm-3">Período Temporal</dt>
+                <dd class="col-sm-9">{{ form_data.get('time_period') }}</dd>
+                {% endif %}
+                
+                <dt class="col-sm-3">Citações Obrigatórias</dt>
+                <dd class="col-sm-9">{{ 'Sim' if form_data.get('citations_required') else 'Não' }}</dd>
+                
+                <dt class="col-sm-3">Mínimo de Fontes</dt>
+                <dd class="col-sm-9">{{ form_data.get('min_sources', 3) }}</dd>
+            </dl>
+        </div>
+        
+        <div>
+            <h6 class="text-primary">5. Estilo e Formatação</h6>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Tom de Escrita</dt>
+                <dd class="col-sm-9">
+                    {% if form_data.get('writing_tone') == 'formal' %}Formal
+                    {% elif form_data.get('writing_tone') == 'academico' %}Acadêmico
+                    {% elif form_data.get('writing_tone') == 'conversacional' %}Conversacional
+                    {% elif form_data.get('writing_tone') == 'persuasivo' %}Persuasivo
+                    {% elif form_data.get('writing_tone') == 'informativo' %}Informativo
+                    {% else %}Acadêmico
+                    {% endif %}
+                </dd>
+                
+                <dt class="col-sm-3">Idioma</dt>
+                <dd class="col-sm-9">
+                    {% if form_data.get('language') == 'pt-BR' %}Português (Brasil)
+                    {% elif form_data.get('language') == 'pt-PT' %}Português (Portugal)
+                    {% elif form_data.get('language') == 'en-US' %}English (US)
+                    {% else %}Português (Brasil)
+                    {% endif %}
+                </dd>
+                
+                {% if form_data.get('required_sections') %}
+                <dt class="col-sm-3">Seções Obrigatórias</dt>
+                <dd class="col-sm-9">{{ form_data.get('required_sections')|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+                
+                {% if form_data.get('formatting_guidelines') %}
+                <dt class="col-sm-3">Diretrizes de Formatação</dt>
+                <dd class="col-sm-9">{{ form_data.get('formatting_guidelines')|replace('\n', '<br>')|safe }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+</div>
+
+<form method="POST" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    <input type="hidden" name="step" value="{{ step }}">
+    
+    <div class="d-flex justify-content-between">
+        <button type="submit" name="back" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </button>
+        
+        <div>
+            <button type="submit" name="save_draft" class="btn btn-outline-primary me-2">
+                <i class="far fa-save me-2"></i>Salvar Rascunho
+            </button>
+            <button type="submit" name="submit" class="btn btn-success">
+                <i class="fas fa-check me-2"></i>Finalizar Projeto
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    dt {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    dd {
+        margin-bottom: 1rem;
+    }
+    .text-primary {
+        color: #4e73df !important;
+    }
+</style>
+{% endblock %}
